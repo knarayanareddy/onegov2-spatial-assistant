@@ -4,6 +4,29 @@ A Dutch-language web application that lets non-technical users ask questions in 
 
 ---
 
+## OneGov #2: Drinkwaterzekerheid challenge
+
+This repository is the starting point for the **Drinkwaterzekerheid** challenge of the **OneGov #2** hackathon, hosted by [GovTech NL](https://govtechnl.nl) and challenge owner **Provincie Zuid-Holland (PZH)**.
+
+- **Date:** 4 and 5 June 2026
+- **Location:** The Hague Tech, Den Haag
+- **Challenge owners:** Sebastiaan Schmidt, Tim Padmos, Thijs Raterink (Provincie Zuid-Holland)
+- **Full brief (English working translation):** [CHALLENGE.md](CHALLENGE.md)
+- **Original brief (PDF, NL):** [OneGov_2_Challenge_Brief_Drinkwaterzekerheid.pdf](OneGov_2_Challenge_Brief_Drinkwaterzekerheid.pdf)
+- **Submission:** via Alkemio, _TODO: link to be added by the organiser._
+
+> *"Hoe zeker is de drinkwatervoorziening van Zuid-Holland in 2040, en welke combinatie van klimaatdruk, regelgeving en bevolkingsgroei vormt het grootste risico of biedt juist kansen voor een robuustere watervoorziening?"*
+
+This is a working **Ruimtelijke Assistent** (Vue 3 frontend, FastAPI backend, LangGraph workflow, DuckDB on Parquet, MLflow tracing) that PZH has forked from its existing spatial assistant. Teams **extend** it from descriptive questions ("how many X are in Y?") to **exploratory, what-if** scenario questions about drinkwaterzekerheid in 2040. You do not start from scratch.
+
+Start here:
+
+- [docs/example-scenarios.md](docs/example-scenarios.md) for the three guiding what-if questions from the brief.
+- [docs/data-inventory.md](docs/data-inventory.md) for an inventory of which themes and datasets are loaded out of the box, and which still need to be added by the challenge owners.
+- The Insight panel in the running app, which exposes every step of the LangGraph reasoning chain. The same chain is also traced in MLflow (see [Architecture](#architecture)) and is the most direct way to satisfy the Should criterion in [CHALLENGE.md](CHALLENGE.md) that asks for a navolgbaar redeneerproces.
+
+---
+
 ## Hackathon quick-start
 
 This repository is the starting point for the hackathon. The spatial assistant is a working chat application that queries geospatial datasets (population, housing, environment, amenities) and visualises the results on an interactive map. You can extend it, swap models, change prompts, or add new datasets.
@@ -11,12 +34,14 @@ This repository is the starting point for the hackathon. The spatial assistant i
 **Get up and running in three steps:**
 
 1. Clone the repo and enter the directory.
-2. Copy the backend environment file and add your OpenAI API key:
+2. Copy the backend environment file and add your LLM credentials:
    ```bash
    cp src/backend/.env.example src/backend/.env
-   # Edit src/backend/.env — set OPENAI_KEY=sk-...
+   # Edit src/backend/.env: set OPENAI_KEY (and optionally OPENAI_MODEL).
    ```
-   The LLM helper, [src/backend/app/services/llm.py](src/backend/app/services/llm.py), uses the standard OpenAI API via `langchain_openai.ChatOpenAI`.
+   The LLM helper, [src/backend/app/services/llm.py](src/backend/app/services/llm.py), uses the standard OpenAI-compatible API via `langchain_openai.ChatOpenAI`.
+
+   **GreenPT.** PZH offers GreenPT credentials to teams. To use GreenPT instead of OpenAI, set `OPENAI_KEY` and `OPENAI_MODEL` in `src/backend/.env` to your GreenPT values, and set `OPENAI_BASE_URL` to the GreenPT endpoint per [docs.greenpt.ai](https://docs.greenpt.ai). The OpenAI public API stays available as a fallback if GreenPT is unreachable.
 3. Copy the frontend environment file:
    ```bash
    cp src/frontend/.env.example src/frontend/.env
@@ -59,10 +84,12 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 cp src/backend/.env.example src/backend/.env
 ```
 ```bash
-cp src/frontend/.env.example src/fronted/.env
+cp src/frontend/.env.example src/frontend/.env
 ```
 
-> **LLM configuration.** Before running the app, set `OPENAI_KEY` in `src/backend/.env`. The model is controlled by `OPENAI_MODEL` (default `gpt-5-chat`) — see `.env.example`.
+> **LLM configuration.** Before running the app, set `OPENAI_KEY` in `src/backend/.env`. The model is controlled by `OPENAI_MODEL` (default `gpt-5-chat`), see `.env.example`. For GreenPT, also set `OPENAI_BASE_URL` to the GreenPT endpoint per [docs.greenpt.ai](https://docs.greenpt.ai); the OpenAI public API remains the fallback.
+
+> **PZH private uv index.** The backend `pyproject.toml` and the frontend `package.json` resolve a small number of `@pzh-temporary/...` and PZH-internal Python packages from a private uv / npm index. `docker compose up --build` reads `UV_INDEX_PZH_USERNAME` and `UV_INDEX_PZH_PASSWORD` from your shell environment; if you do not have those credentials, ask the challenge owners. Without them the Docker build will fail at the `uv sync` step, even on a clean clone.
 
 ### Git hooks
 
@@ -100,9 +127,7 @@ The backend is also directly accessible on port 8000. Nginx proxies `/api/` and 
 ├── docker-compose.yml              # Development compose
 ├── docker-compose.prod.yml         # Production compose
 ├── Makefile
-├── docs/                           # Architecture and workflow diagrams
-├── tests/
-│   └── benchmarks/PRACTIQ/         # Benchmark runner and questions
+├── docs/                           # Architecture, workflow, hackathon onboarding
 └── src/
     ├── backend/
     │   ├── .env.example
@@ -164,7 +189,7 @@ _Mermaid source: [docs/architecture_diagram.mmd](docs/architecture_diagram.mmd) 
 
 **SQL execution.** The backend always executes SQL server-side via DuckDB in [src/backend/app/services/nodes/execute_query.py](src/backend/app/services/nodes/execute_query.py), with the `delta` and `h3` extensions loaded. If the query returns rows they are streamed to the frontend via the `map_data` SSE event.
 
-**LLM monitoring.** All LLM calls are traced via MLflow, which tracks prompts, token counts, and latency per LangGraph node. The MLflow UI runs alongside the backend (SQLite-backed, no extra setup required).
+**LLM monitoring.** All LLM calls are traced via MLflow, which tracks prompts, token counts, and latency per LangGraph node. The MLflow UI runs alongside the backend on **http://localhost:5001** (SQLite-backed, no extra setup required) and `MLFLOW_ENABLED=true` is set by `docker-compose.yml`. **Hackathon teams: leave MLflow on.** It is the most direct way to satisfy the Should criterion in [CHALLENGE.md](CHALLENGE.md) that the prototype's reasoning chain is navolgbaar vastgelegd.
 
 **SSE events** ([src/backend/app/routers/chat.py](src/backend/app/routers/chat.py)): `meta`, `text`, `map_config`, `map_data`, `status`, `error`, `done`, `step_thinking_summary`.
 
@@ -221,3 +246,20 @@ The application follows the PZH house style via the following component librarie
 
 - `@pzh-temporary/vue-component-library` (v1.1.12)
 - `@pzh-temporary/html-component-library` (v5.0.25)
+
+## Submission
+
+Teams submit through **Alkemio**, the central submission and review point for the OneGov #2 jury.
+
+- **Alkemio submission link:** _TODO: link to be added by the organiser._
+- A team submits:
+  - a **repository link** (your own fork of this repo, or a derivative repo on GitHub, GitLab or similar);
+  - a **working prototype or PoC**;
+  - a **demo of at least two scenarios or comparisons** (for example, comparing baseline drinkwaterzekerheid in 2040 against a verzilting or population-growth shock);
+  - a **short description of data, assumptions, and limitations**;
+  - a **pitch deck** (max. 10 slides).
+- The Alkemio submission is what the jury scores during the hackathon. Pull requests against this repository remain welcome for high-quality reusable artefacts (datasets, prompts, nodes, documentation), and are leading for the post-hackathon review and merge of those contributions.
+
+## License
+
+Code is released under the [Apache License 2.0](LICENSE), consistent with the other OneGov #2 repositories. Datasets under `src/backend/data/` and `src/backend/extra_data/` retain the licences of their original sources (PZH, CBS, RIVM, RIONED, PDOK, etc.); see [docs/data-inventory.md](docs/data-inventory.md).
