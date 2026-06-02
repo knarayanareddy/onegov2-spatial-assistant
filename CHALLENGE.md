@@ -93,7 +93,7 @@ At the end of the hackathon every team submits:
 
 Teams submit through **Alkemio**, the central submission and review point for the OneGov #2 jury.
 
-- **Alkemio submission link:** _TODO: link to be added by the organiser._
+- **Alkemio submission link:** [alkem.io/onegov-hackathon/challenges/ruimtelijkeassistentdrink](https://alkem.io/onegov-hackathon/challenges/ruimtelijkeassistentdrink).
 - The Alkemio submission is what the jury scores during the hackathon. Pull requests against this repository remain welcome for high-quality reusable artefacts (datasets, prompts, nodes, documentation), and are leading for the post-hackathon review and merge of those contributions.
 
 ## Resources and inspiration

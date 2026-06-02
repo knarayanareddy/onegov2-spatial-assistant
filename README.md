@@ -13,7 +13,7 @@ This repository is the starting point for the **Drinkwaterzekerheid** challenge 
 - **Challenge owners:** Sebastiaan Schmidt, Tim Padmos, Thijs Raterink (Provincie Zuid-Holland)
 - **Full brief (English working translation):** [CHALLENGE.md](CHALLENGE.md)
 - **Original brief (PDF, NL):** [OneGov_2_Challenge_Brief_Drinkwaterzekerheid.pdf](OneGov_2_Challenge_Brief_Drinkwaterzekerheid.pdf)
-- **Submission:** via Alkemio, _TODO: link to be added by the organiser._
+- **Submission:** via [Alkemio](https://alkem.io/onegov-hackathon/challenges/ruimtelijkeassistentdrink).
 
 > *"Hoe zeker is de drinkwatervoorziening van Zuid-Holland in 2040, en welke combinatie van klimaatdruk, regelgeving en bevolkingsgroei vormt het grootste risico of biedt juist kansen voor een robuustere watervoorziening?"*
 
@@ -247,7 +247,7 @@ The application follows the PZH house style via the following component librarie
 
 Teams submit through **Alkemio**, the central submission and review point for the OneGov #2 jury.
 
-- **Alkemio submission link:** _TODO: link to be added by the organiser._
+- **Alkemio submission link:** [alkem.io/onegov-hackathon/challenges/ruimtelijkeassistentdrink](https://alkem.io/onegov-hackathon/challenges/ruimtelijkeassistentdrink).
 - A team submits:
   - a **repository link** (your own fork of this repo, or a derivative repo on GitHub, GitLab or similar);
   - a **working prototype or PoC**;
