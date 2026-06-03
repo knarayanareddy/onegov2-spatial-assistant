@@ -23,7 +23,7 @@ What the assistant does well today is **descriptive**: "how many X are in area Y
 
 Translated: *How secure is the drinking-water supply of Zuid-Holland in 2040, and which combination of climate pressure, regulation, and population growth poses the biggest risk, or offers the biggest opportunity, for a more robust water supply?*
 
-Teams take the working spatial assistant and extend it from descriptive questions to exploratory, multi-theme, what-if scenarios. Three guiding example scenarios are listed in [docs/example-scenarios.md](docs/example-scenarios.md); challenge owners will add more on or before the hackathon.
+Teams take the working spatial assistant and extend it from descriptive questions to exploratory, multi-theme, what-if scenarios. Three guiding example scenarios are quoted in the brief, and six additional authoritative scenarios have been supplied by the challenge owners; all nine are listed in [docs/example-scenarios.md](docs/example-scenarios.md).
 
 ## Data themes
 

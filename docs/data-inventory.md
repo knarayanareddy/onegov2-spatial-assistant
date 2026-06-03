@@ -73,5 +73,8 @@ LLM metadata: `_llm_metadata_woondeals.json`.
 
 ## Open data inventory questions
 
-- **Extra drinkwater-specific datasets.** The brief implies more drinkwater-specific datasets and example scenarios may be supplied by the challenge owners. Land them here and in [example-scenarios.md](example-scenarios.md) so teams know what to plan for.
+- **Optional external sources teams may add themselves.** The brief points teams at three open sources that are not shipped with the repo and can be registered into `src/backend/extra_data/` with a matching `_llm_metadata_*.json`:
+  - **KNMI klimaatscenario's 2050** ([klimaatscenarios.knmi.nl](https://www.klimaatscenarios.knmi.nl)) for the dry-climate axis in scenarios 4 and 7.
+  - **KRW monitoringsdata** via Waterinfo RWS ([waterinfo.rws.nl](https://waterinfo.rws.nl)) for scenario 5.
+  - **DINOloket** grondwaterdata ([dinoloket.nl](https://www.dinoloket.nl)) for groundwater-driven scenarios.
 - **Dataset licences.** Each dataset retains its source licence (PZH, CBS, RIVM, RIONED, PDOK, etc.). A short licence column per table is not yet recorded; a `licence` field per table in the `_llm_metadata_*.json` files would make the open-source Must criterion easier to satisfy. Recorded as a known limitation; not in scope for this repo's hackathon prep.

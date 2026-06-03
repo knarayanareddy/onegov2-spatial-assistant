@@ -22,29 +22,45 @@ Touches: `drinkwaterzekerheid` (six-hour zones, productieketen, toestandsbeoorde
 
 ---
 
-## Additional drinkwater-specific scenarios
+## Additional drinkwater-specific scenarios (authoritative)
 
-The three scenarios below are **drafts** put together by the GovTech NL hackathon prep team while waiting on Sebastiaan, Tim and Thijs to deliver the authoritative list. Treat them as placeholders, not as canonical brief questions; expect them to be replaced or sharpened before 4 June.
+These six scenarios were supplied by the challenge owners (Sebastiaan Schmidt, Tim Padmos, Thijs Raterink) as the authoritative list of what-if questions to engage with on top of the three brief questions above. Several of them sharpen one of the three brief questions on a more concrete axis; one is genuinely new.
 
-### A. Bescherming van intrekgebieden onder ruimtelijke druk
+### 4. Dry KNMI climate scenario combined with verzilting on the Hollandse IJssel
 
-> *Welke intrekgebieden in Zuid-Holland staan in 2040 het meest onder druk door ruimtelijke ontwikkelingen, en welke beschermingsmaatregelen leveren het meeste effect op?*
+> *How does drinking-water production behave under a dry KNMI climate scenario when verzilting on the Hollandse IJssel intake increases at the same time?*
 
-Touches: `drinkwaterzekerheid` (zes-uur-zones, intrekgebieden, productieketen), `gebiedsviewer` (natuurnetwerk, groenblauwe ruimte, nutriënten verontreinigde gebieden, stabiliteit), `extra_data/woondeals` (PMIEK-projecten, capaciteitskaart) for spatial-planning pressure.
+Sharpens scenario 1 by anchoring the climate axis on a published KNMI climate scenario instead of an unspecified shock. Touches: `drinkwaterzekerheid` (intake points, production chain, drinkwaterbedrijven, six-hour zones), `gebiedsviewer/verzilting`. Optional external bron: KNMI klimaatscenario's 2050 ([klimaatscenarios.knmi.nl](https://www.klimaatscenarios.knmi.nl)).
 
-### B. Klimaat-resilientie van het oppervlaktewater
+### 5. KRW enforcement restricts agricultural land use around grondwaterbeschermingszones
 
-> *Hoe verandert de toestandsbeoordeling van oppervlaktewaterlichamen die als drinkwaterbron dienen onder een gecombineerd droogte- en verziltingsscenario, en welke regio's verliezen daarmee het eerst hun bruikbaarheid als bron?*
+> *If KRW enforcement leads to restrictions on agricultural land use around grondwaterbeschermingszones, which areas are affected and how does this change the protection of drinking-water sources?*
 
-Touches: `drinkwaterzekerheid` (toestandsbeoordeling oppervlaktewaterlichamen, drinkwaterbedrijven, productieketen), `gebiedsviewer` (verzilting, veenoxidatie, daling bij ontwateringsdiepte, overstromingskwetsbaarheid).
+New angle that the brief mentions only as regulatory context. Touches: `drinkwaterzekerheid` (drinkwater_infrastructuur, zes-uur-zones, intrekgebieden), `gebiedsviewer` (nutri\u00ebnten verontreinigde gebieden, natuurnetwerk, stabiliteit), and optionally `extra_data/lgn` for current agricultural land use.
 
-### C. Stikstof- en nutriëntendruk op grondwaterbronnen
+### 6. 80,000 new homes in the Zuidelijke Randstad raise water demand and pressure on soil and subsurface
 
-> *Welke grondwaterbronnen voor drinkwater liggen in gebieden met de grootste stikstof- en nutriëntendruk, en hoe verhoudt dat zich tot bestaande beschermingsmaatregelen?*
+> *What does an extra 80,000 homes in the Zuidelijke Randstad mean for drinking-water demand and for the pressure on soil and subsurface in the same area?*
 
-Touches: `drinkwaterzekerheid` (drinkwater_infrastructuur, zes-uur-zones), `gebiedsviewer` (nutriënten verontreinigde gebieden, natuurnetwerk, natura 2000-gebieden), `extra_data/woondeals` (stikstof_natura2000_stats, stikstof_overschrijding_kdw).
+Concretises the population-growth axis from the brief with a specific volume. Touches: `drinkwaterzekerheid` (productieketen, drinkwaterbedrijven), `gebiedsviewer` (bodemdaling, daling bij ontwateringsdiepte, veenoxidatie, stabiliteit, overstromingskwetsbaarheid), `extra_data/CBS` vierkantstatistieken (population baseline), `extra_data/woondeals` (capaciteitskaart_afname_regionaal, PMIEK projects).
 
-> _TODO (Sebastiaan Schmidt, Tim Padmos, Thijs Raterink): replace or refine the three drafts above with the authoritative list. The brief promises that more drinkwater-specific scenarios and example questions will be supplied by the challenge owners._
+### 7. Combined shock: drought + loss of one intake + population peak load
+
+> *What happens to drinking-water security if drought, the loss of one intake point, and a population peak load all hit at the same time?*
+
+This is the explicit Should-criterion combination from the brief: *droog klimaatscenario met/zonder wegvallen innamepunt, met/zonder bevolkingsgroei*. Strong fit for a comparison demo. Touches: `drinkwaterzekerheid` (intake points, production chain, six-hour zones, drinkwaterbedrijven), `gebiedsviewer/verzilting`, `extra_data/CBS`.
+
+### 8. Optional datacenter realisation: water consumption and effect on drinking-water availability
+
+> *If an additional datacenter is realised in Zuid-Holland, what is its water consumption and how does that affect drinking-water availability in the surrounding area?*
+
+Genuinely new angle, not in the brief. Treat the datacenter water profile as an explicit assumption (litres per day, location) and surface that assumption in the Insight panel. Touches: `drinkwaterzekerheid` (productieketen, drinkwaterbedrijven, six-hour zones), `gebiedsviewer` (groenblauwe ruimte, stabiliteit), `extra_data/woondeals` (capaciteitskaart_afname_regionaal) for grid co-location.
+
+### 9. Opportunity: nature restoration in intrekgebieden improves soil filter capacity
+
+> *Where in Zuid-Holland would nature restoration in intrekgebieden deliver the largest improvement in soil filter capacity, and therefore in drinking-water robustness?*
+
+Sharpens scenario 3 (the kansen-side from the brief) by naming the mechanism: nature restoration improving filter capacity. Touches: `drinkwaterzekerheid` (intrekgebieden, six-hour zones, toestandsbeoordeling), `gebiedsviewer` (natuurnetwerk, natuurlijke_spons_kansrijk, groenblauwe_ruimte_huidig_new, nutri\u00ebnten verontreinigde gebieden), and optionally `extra_data/lgn` for land-use shifts.
 
 ## How to use these scenarios
 
