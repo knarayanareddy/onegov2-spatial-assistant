@@ -37,9 +37,9 @@ This repository is the starting point for the hackathon. The spatial assistant i
 2. Copy the backend environment file and add your LLM credentials:
    ```bash
    cp src/backend/.env.example src/backend/.env
-   # Edit src/backend/.env: set GREENPT_KEY (and optionally OPENAI_MODEL).
+   # Edit src/backend/.env: set GREENPT_KEY.
    ```
-   The LLM helper, [src/backend/app/services/llm.py](src/backend/app/services/llm.py), is wired to **GreenPT** out of the box: `base_url` is hardcoded to `https://api.greenpt.ai/v1`, the default `OPENAI_MODEL` is `gemma4`, and the API key is read from `GREENPT_KEY`. GreenPT credentials are offered to OneGov #2 hackathon teams by Provincie Zuid-Holland; see [docs.greenpt.ai](https://docs.greenpt.ai). To swap models, change `OPENAI_MODEL`.
+   The LLM helper, [src/backend/app/services/llm.py](src/backend/app/services/llm.py), is wired to **GreenPT** out of the box: `base_url` is hardcoded to `https://api.greenpt.ai/v1`, the default model is `gemma4`, and the API key is read from `GREENPT_KEY`. GreenPT credentials are offered to OneGov #2 hackathon teams by Provincie Zuid-Holland; see [docs.greenpt.ai](https://docs.greenpt.ai).
 3. Copy the frontend environment file:
    ```bash
    cp src/frontend/.env.example src/frontend/.env
@@ -85,7 +85,7 @@ cp src/backend/.env.example src/backend/.env
 cp src/frontend/.env.example src/frontend/.env
 ```
 
-> **LLM configuration.** Before running the app, set `GREENPT_KEY` in `src/backend/.env`. The model is controlled by `OPENAI_MODEL` (default `gemma4`), see `.env.example`. The GreenPT base URL is hardcoded in [src/backend/app/services/llm.py](src/backend/app/services/llm.py); to point at a different OpenAI-compatible endpoint, change it there.
+> **LLM configuration.** Before running the app, set `GREENPT_KEY` in `src/backend/.env`. The model (`gemma4` by default) and the GreenPT base URL are configured in [src/backend/app/services/llm.py](src/backend/app/services/llm.py); to point at a different model or a different OpenAI-compatible endpoint, change it there.
 
 ### Git hooks
 
