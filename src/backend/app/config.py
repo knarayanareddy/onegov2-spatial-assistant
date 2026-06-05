@@ -17,6 +17,27 @@ class Settings(BaseSettings):
     ALLOWED_ORIGINS: str = "*"
     DEBUG: bool = False
     DICTIONARY_CACHE: bool = True
+    # FAQ cache backend (Phase 3/4): "memory" (default) or "postgres".
+    # "postgres" activates SqlFaqCache(engine) at startup (run the Alembic migration first).
+    FAQ_CACHE_BACKEND: str = "memory"
+    # Phase 5: attempt the live RWS Waterinfo chloride feed for intake scenarios.
+    # Off by default (offline/sandbox uses the dated last-known fallback, never silent).
+    WATERINFO_LIVE: bool = False
+
+    # Phase 6 — authentication & audit (Woo/accountability).
+    # AUTH_MODE: "dev" (single local user, default) | "jwt" (verify Bearer) | "header" (trust proxy).
+    AUTH_MODE: str = "dev"
+    AUTH_REQUIRED: bool = False               # reject unauthenticated requests (non-dev modes)
+    AUTH_JWT_SECRET: str = ""                  # HS256 shared secret
+    AUTH_JWT_ALGORITHM: str = "HS256"
+    AUTH_JWT_JWKS_URL: str = ""                # RS256 via a JWKS endpoint (e.g. Keycloak/Azure AD)
+    AUTH_JWT_AUDIENCE: str = ""
+    AUTH_HEADER_NAME: str = "X-Auth-User"      # OIDC reverse-proxy identity header
+    AUTH_HEADER_DISPLAY_NAME: str = "X-Auth-Name"
+    AUTH_HEADER_ROLES: str = "X-Auth-Roles"
+    AUTH_ROLES_CLAIM: str = "roles"            # JWT claim holding roles
+    AUTH_ADMIN_ROLE: str = "admin"
+    AUDIT_BACKEND: str = "memory"              # "memory" (default) | "postgres"
     OPENAI_MODEL: str = "gemma4"
     PORT: int = 8000
     DATABASE_URL: str = (
