@@ -68,16 +68,46 @@ function deltaColor(d: number): [number, number, number, number] {
   return [150, 160, 170, 80];
 }
 
-function tooltipHtml(o: any): string {
-  const sign = o.delta > 0 ? "+" : "";
-  const trend = o.delta > 1 ? "⬆ slechter" : o.delta < -1 ? "⬇ beter" : "≈ gelijk";
-  return `<div style="font:12px/1.5 system-ui,sans-serif;padding:2px 4px">
-    <div style="font-weight:700;font-family:monospace;font-size:11px;margin-bottom:4px">${o.h3_id}</div>
-    <table style="border-collapse:collapse">
-      <tr><td style="color:#666;padding-right:8px">Score A</td><td><b>${o.score_a.toFixed(1)}</b>/100</td></tr>
-      <tr><td style="color:#666;padding-right:8px">Score B</td><td><b>${o.score_b.toFixed(1)}</b>/100</td></tr>
-      <tr><td style="color:#666;padding-right:8px">Verschil (Δ)</td><td><b>${sign}${o.delta.toFixed(1)}</b> ${trend}</td></tr>
-    </table>
+// Colour per verdict
+const VERDICT_COLOR: Record<string, string> = { STOP:"#dc3545", CAUTION:"#e6a817", GO:"#28a745" };
+
+function tooltipHtml(o: any, labelA: string, labelB: string): string {
+  const sign  = o.delta > 0 ? "+" : "";
+  const trend = o.delta >  1 ? "<span style='color:#dc3545;font-weight:700'>⬆ verslechterd</span>"
+              : o.delta < -1 ? "<span style='color:#28a745;font-weight:700'>⬇ verbeterd</span>"
+              : "<span style='color:#888'>≈ gelijk</span>";
+  const va = o.verdict_a_nl ?? o.verdict_a ?? "—";
+  const vb = o.verdict_b_nl ?? o.verdict_b ?? "—";
+  const ca = VERDICT_COLOR[o.verdict_a ?? ""] ?? "#888";
+  const cb = VERDICT_COLOR[o.verdict_b ?? ""] ?? "#888";
+  const bedrijf  = o.drinkwaterbedrijf ?? "—";
+  const verzilt  = o.verzilting ? "Ja (>200mg/l)" : "Nee";
+  const zes      = o.in_zes_uur_zone ? "Binnen zone" : "Buiten zone";
+  const overs    = o.overstromingsrisico ?? "—";
+  return `<div style="font:12.5px/1.5 system-ui,sans-serif;min-width:260px">
+    <div style="background:#0a4d68;color:#fff;padding:7px 11px;border-radius:6px 6px 0 0;font-weight:700">${o.h3_id}</div>
+    <div style="padding:10px 12px;display:flex;flex-direction:column;gap:5px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px">
+        <div style="background:#f4f7f9;border-radius:6px;padding:7px 10px;text-align:center">
+          <div style="font-size:10.5px;color:#666;margin-bottom:2px">${labelA}</div>
+          <div style="font-size:15px;font-weight:700">${o.score_a.toFixed(1)}<span style="font-size:11px;color:#888">/100</span></div>
+          <div style="font-size:11px;font-weight:700;color:${ca}">${va}</div>
+        </div>
+        <div style="background:#f4f7f9;border-radius:6px;padding:7px 10px;text-align:center">
+          <div style="font-size:10.5px;color:#666;margin-bottom:2px">${labelB}</div>
+          <div style="font-size:15px;font-weight:700">${o.score_b.toFixed(1)}<span style="font-size:11px;color:#888">/100</span></div>
+          <div style="font-size:11px;font-weight:700;color:${cb}">${vb}</div>
+        </div>
+      </div>
+      <div style="text-align:center;font-size:12.5px">Verschil: <b>${sign}${o.delta.toFixed(1)} punt</b> — ${trend}</div>
+      <hr style="border:none;border-top:1px solid #e0e7ee;margin:4px 0"/>
+      <table style="border-collapse:collapse;font-size:11.5px;width:100%">
+        <tr><td style="color:#666;padding:2px 8px 2px 0">Drinkwaterbedrijf</td><td><b>${bedrijf}</b></td></tr>
+        <tr><td style="color:#666;padding:2px 8px 2px 0">Verzilting (>200mg/l)</td><td>${verzilt}</td></tr>
+        <tr><td style="color:#666;padding:2px 8px 2px 0">Overstromingsrisico</td><td>${overs}</td></tr>
+        <tr><td style="color:#666;padding:2px 8px 2px 0">6-uur beschermingszone</td><td>${zes}</td></tr>
+      </table>
+    </div>
   </div>`;
 }
 
@@ -119,7 +149,12 @@ onMounted(() => {
   });
   overlay = new MapboxOverlay({
     interleaved: true, layers: [],
-    getTooltip: ({ object }: any) => object ? { html: tooltipHtml(object), style: { background:"#fff", border:"1px solid #dce3e8", borderRadius:"8px", boxShadow:"0 2px 8px rgba(0,0,0,.15)", padding:"10px 12px" } } : null,
+    getTooltip: ({ object }: any) => {
+      if (!object) return null;
+      const la = result.value?.overlay?.label_a ?? "Scenario A";
+      const lb = result.value?.overlay?.label_b ?? "Scenario B";
+      return { html: tooltipHtml(object, la, lb), style: { background:"#fff", border:"1px solid #dce3e8", borderRadius:"8px", boxShadow:"0 4px 16px rgba(0,0,0,.18)", padding:"0", overflow:"hidden" } };
+    },
   });
   map.addControl(overlay as any);
 });
