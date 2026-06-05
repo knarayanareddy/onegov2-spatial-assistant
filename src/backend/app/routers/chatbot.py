@@ -45,7 +45,7 @@ class ChatAskRequest(BaseModel):
     question: str
     scenario_id: Optional[str] = None       # resolve a stored card to explain
     scenario_card: Optional[dict] = None     # OR pass the card inline (preferred)
-    model: str = "gemma4"
+    model: str = "qwen3-235b-a22b-instruct-2507"
 
 
 class RecipeRunRequest(BaseModel):
