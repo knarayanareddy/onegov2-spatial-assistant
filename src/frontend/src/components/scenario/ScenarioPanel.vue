@@ -133,7 +133,7 @@ onMounted(() => {
           <label v-for="(_, key) in assumptions" :key="key">
             <span class="k">{{ key }}</span>
             <input type="range" min="0" max="2" step="0.05" v-model.number="assumptions[key]" @change="runScenario(false)" />
-            <span class="v">{{ assumptions[key].toFixed(2) }}</span>
+            <span class="v">{{ (assumptions[key] ?? 0).toFixed(2) }}</span>
           </label>
         </section>
 
