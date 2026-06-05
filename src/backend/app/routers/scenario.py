@@ -27,6 +27,7 @@ from app.services.audit import record_audit
 from app.services.scenario.assumptions import ASSUMPTIONS_VERSION, assumption_library
 from app.services.scenario.calibration import run_calibration
 from app.services.scenario.citizen import detect_citizen_mode, format_citizen_response
+from app.services.scenario.compare import compare_scenarios
 from app.services.scenario.cumulative import execute_cumulative, validate_cumulative
 from app.services.scenario.models import ScenarioParams
 from app.services.scenario.pdf import build_citation, render_scenario_pdf
@@ -183,6 +184,42 @@ async def scenario_uncertainty(req: UncertaintyRequest, user: CurrentUser = Depe
     await record_audit(user, "scenario.uncertainty", "",
                        {"question": req.question[:120], "robust": band["robust"], "headline": band["headline_nl"]})
     return band
+
+
+class CompareSide(BaseModel):
+    """One side of an A/B comparison: a saved scenario, or an inline custom set."""
+    scenario_id: Optional[str] = None
+    question: Optional[str] = None
+    assumptions: Optional[dict] = None
+    label: Optional[str] = None
+
+
+class CompareRequest(BaseModel):
+    a: CompareSide
+    b: CompareSide
+    base: Optional[str] = None              # shared-universe override: "salinity" | "populated"
+    area_cells: Optional[list[str]] = None  # shared-universe H3 cells override
+    top_n: int = 25                         # how many top changed cells to return per direction
+
+
+@router.post("/api/scenario/compare")
+async def scenario_compare(req: CompareRequest, user: CurrentUser = Depends(get_current_user)):
+    """Detailed A/B comparison: any two scenarios (by id or inline assumptions)
+    over a shared H3 universe, with per-factor attribution and a per-cell diff."""
+    a, b = req.a.model_dump(), req.b.model_dump()
+    for side, payload in (("A", a), ("B", b)):
+        if not (payload.get("scenario_id") or payload.get("assumptions")):
+            raise HTTPException(status_code=422,
+                                detail=f"Zijde {side} vereist een scenario_id of assumptions.")
+    try:
+        result = compare_scenarios(a, b, DATA_DIR, _store,
+                                   base=req.base, area_cells=req.area_cells, top_n=req.top_n)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+    await record_audit(user, "scenario.compare", "",
+                       {"verdict_change": result["delta"]["feasibility_change"],
+                        "n_cells": result["universe"]["n_cells"]})
+    return result
 
 
 @router.get("/api/audit")
