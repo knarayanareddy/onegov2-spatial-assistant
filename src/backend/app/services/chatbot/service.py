@@ -89,7 +89,7 @@ def _route_to_engine(question: str, retriever: BM25Retriever, intent: str, *,
 def answer_question(question: str, *,
                     corpus: Optional[list[Passage]] = None,
                     scenario_card: Optional[dict] = None,
-                    model: str = "gemma4",
+                    model: str = "qwen3-235b-a22b-instruct-2507",
                     llm_factory: Optional[Callable] = None,
                     use_llm: Optional[bool] = None,
                     top_k: int = 6) -> ChatAnswer:

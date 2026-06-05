@@ -38,7 +38,7 @@ class Settings(BaseSettings):
     AUTH_ROLES_CLAIM: str = "roles"            # JWT claim holding roles
     AUTH_ADMIN_ROLE: str = "admin"
     AUDIT_BACKEND: str = "memory"              # "memory" (default) | "postgres"
-    OPENAI_MODEL: str = "gemma4"
+    OPENAI_MODEL: str = "qwen3-coder-30b-a3b-instruct"
     PORT: int = 8000
     DATABASE_URL: str = (
         "postgresql+asyncpg://ruimtelijke:secret123!@localhost:5432/sessions"
