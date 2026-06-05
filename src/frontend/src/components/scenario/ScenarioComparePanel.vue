@@ -55,9 +55,6 @@ async function compare() {
   }
 }
 
-function pct(x: number): string {
-  return `${(x * 100).toFixed(0)}%`;
-}
 function signed(x: number, digits = 1): string {
   return `${x > 0 ? "+" : ""}${x.toFixed(digits)}`;
 }
