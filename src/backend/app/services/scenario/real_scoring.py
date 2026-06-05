@@ -140,6 +140,13 @@ def _scored_cte(data_dir: str, a: dict[str, float], area_cells: list[str] | None
     scored AS (
         SELECT u.h,
                LEAST(1.0, COALESCE(c.pop, 0) * {dppd} * (1.0 + {growth}) * {added_factor} / {ref}) AS demand_norm,
+               -- per-factor contributions (0-100 scale, PRE-clamp); they sum to the
+               -- unclamped score, so score = LEAST(100, term_salinity + ... ). Exposed
+               -- for the A/B comparison's per-factor attribution (compare.py).
+               100.0 * ({ws} * COALESCE(s.sal, 0) * {dry}) AS term_salinity,
+               100.0 * ({wf} * COALESCE(o.flood, 0)) AS term_flood,
+               100.0 * ({wp} * COALESCE(p.prot, 0)) AS term_protection,
+               100.0 * ({wd} * LEAST(1.0, COALESCE(c.pop, 0) * {dppd} * (1.0 + {growth}) * {added_factor} / {ref})) AS term_demand,
                100.0 * LEAST(1.0,
                    {ws} * COALESCE(s.sal, 0) * {dry}
                  + {wf} * COALESCE(o.flood, 0)
@@ -189,3 +196,35 @@ def score_h3_area(data_dir: str = "data", assumptions: dict[str, float] | None =
         "stop_share": round(stop_share, 3), "area_verdict": area_verdict, "base": base,
         "themes_used": themes, "assumptions_used": a, "cells": cells,
     }
+
+
+# Per-factor labels used by the comparison attribution (compare.py). Order matters
+# (it is the canonical display/iteration order).
+FACTORS: tuple[str, ...] = ("salinity", "flood", "protection", "demand")
+
+
+def score_cells_components(data_dir: str = "data", assumptions: dict[str, float] | None = None,
+                          area_cells: list[str] | None = None,
+                          base: str = "salinity") -> list[dict[str, Any]]:
+    """Every scored cell with its DrinkwaterDruk score AND the four per-factor
+    contributions (0-100 scale, pre-clamp). Used by the A/B comparison to build
+    per-factor attribution and a per-cell diff. The factor terms sum to the
+    unclamped score, i.e. ``score == min(100, salinity + flood + protection + demand)``.
+    """
+    a = {**DEFAULT_ASSUMPTIONS, **(assumptions or {})}
+    con = duckdb.connect()
+    cte = _scored_cte(data_dir, a, area_cells, base)
+    rows = con.execute(
+        cte + " SELECT h, score, term_salinity, term_flood, term_protection, term_demand FROM scored"
+    ).fetchall()
+    out: list[dict[str, Any]] = []
+    for h, sc, ts, tf, tp, td in rows:
+        out.append({
+            "h3_id": h,
+            "score": round(float(sc), 1),
+            "salinity": round(float(ts), 2),
+            "flood": round(float(tf), 2),
+            "protection": round(float(tp), 2),
+            "demand": round(float(td), 2),
+        })
+    return out
