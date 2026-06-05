@@ -22,6 +22,11 @@ dependencies = [
     "databricks-sdk>=0.20",
     "pandas>=2.0",
     "jinja2>=3.0",
+    # --- scenario engine + chatbot phases 1-7 ---
+    "fpdf2>=2.8.0",            # scenario PDF adviesnota (pdf.py)
+    "h3>=4.0.0",               # H3 area selection (area.py)
+    "httpx>=0.27.0",           # PDOK geocode + RWS Waterinfo (area.py, waterinfo.py)
+    "pyjwt>=2.8.0",            # JWT auth verification (auth.py, Phase 6)
 ]
 
 [dependency-groups]
@@ -32,6 +37,7 @@ dev = [
     "pytest-rerunfailures>=14.0",
     "pytest-timeout>=2.3.0",
     "ty>=0.0.27",
+    "aiosqlite>=0.20.0",       # SQLite-backed adapter tests (faq_cache_sql, audit_sql)
 ]
 
 [tool.pytest.ini_options]
