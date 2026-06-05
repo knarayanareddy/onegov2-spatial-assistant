@@ -196,6 +196,16 @@ def compare_scenarios(spec_a: dict, spec_b: dict, data_dir: str, store: Any | No
         ),
     )
 
+    # Full per-cell overlay for the map (every cell, coloured by A->B delta).
+    overlay = {
+        "layer_id": "compare_delta_h3",
+        "label_nl": "Verschil DrinkwaterDruk (A → B) per H3-cel",
+        "type": "H3HexagonLayer",
+        "cells": [{"h3_id": d["h3_id"], "delta": d["delta"],
+                   "score_a": d["score_a"], "score_b": d["score_b"]} for d in diffs],
+        "legend_nl": {"up": "hoger (slechter) in B", "down": "lager (beter) in B", "zero": "gelijk"},
+    }
+
     return {
         "universe": {"base": sbase, "n_cells": agg_a["n_cells"], "area_source": area_source},
         "a": {"label": side_a["label"], "question": side_a["question"],
@@ -204,6 +214,7 @@ def compare_scenarios(spec_a: dict, spec_b: dict, data_dir: str, store: Any | No
               "assumptions": b_full, **agg_b},
         "delta": asdict(delta),
         "factor_attribution": attribution,
+        "overlay": overlay,
         "cell_diff": {
             "n_common": len(diffs),
             "n_worsened": n_worsened, "n_improved": n_improved, "n_unchanged": n_unchanged,
