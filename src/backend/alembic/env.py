@@ -10,7 +10,7 @@ from sqlmodel import SQLModel
 from app.database import make_engine
 
 # Import all models so SQLModel registers their tables for autogenerate
-from app.models import feedback, session  # noqa: F401
+from app.models import audit, faq_cache, feedback, session  # noqa: F401
 
 config = context.config
 

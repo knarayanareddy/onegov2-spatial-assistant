@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Phase 5 — Remediation &amp; new-gap critique</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{--ink:#15242e;--muted:#5b6b76;--line:#e3eaef;--paper:#fff;--wash:#f5f8fa;--teal:#0a4d68;--teal-soft:#e6f0f4;
+    --go:#1a7f37;--go-bg:#e7f4ec;--caution:#9a6700;--caution-bg:#fdf6e3;--stop:#b3261e;--stop-bg:#fce9e7;}
+  *{box-sizing:border-box}html{scroll-behavior:smooth}
+  body{margin:0;background:var(--wash);color:var(--ink);font-family:Inter,system-ui,sans-serif;line-height:1.62}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 6%}
+  h1,h2,h3{font-family:"Source Serif 4",Georgia,serif;line-height:1.18;letter-spacing:-.01em}
+  a{color:var(--teal)}
+  header.mast{background:var(--teal);color:#fff;padding:50px 0 40px}
+  .kicker{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#bcd7e2;font-weight:600;margin:0 0 12px}
+  header.mast h1{font-size:clamp(28px,4.6vw,46px);margin:0 0 12px;color:#fff}
+  header.mast p{font-size:clamp(15px,1.9vw,18px);color:#dcebf1;max-width:66ch;margin:0}
+  section{padding:36px 0}section+section{border-top:1px solid var(--line)}
+  .sec-label{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);font-weight:700;margin:0 0 6px}
+  h2{font-size:clamp(21px,2.8vw,28px);margin:0 0 8px}
+  .sub{color:var(--muted);margin:0 0 24px;max-width:74ch}
+  .legend{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 8px}
+  .pill{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;border-radius:999px;padding:5px 12px;border:1px solid var(--line);background:#fff;color:var(--muted)}
+  .fixgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:16px}
+  .fix{background:var(--paper);border:1px solid var(--line);border-left:5px solid var(--go);border-radius:13px;padding:18px 20px}
+  .fix h3{margin:0 0 6px;font-size:17px}
+  .fix .tags{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
+  .tag{font-size:10.5px;font-weight:700;letter-spacing:.03em;border-radius:5px;padding:2px 7px}
+  .tag.built{background:var(--go-bg);color:var(--go)}.tag.drop{background:var(--teal-soft);color:var(--teal)}.tag.env{background:var(--caution-bg);color:var(--caution)}
+  .fix p{margin:6px 0 0;font-size:13.5px}
+  .fix code{font-family:ui-monospace,Menlo,monospace;font-size:12px;background:var(--wash);padding:1px 5px;border-radius:4px}
+  .gap{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin:14px 0;border-left:6px solid var(--muted)}
+  .gap.red{border-left-color:var(--stop)}.gap.orange{border-left-color:var(--caution)}.gap.yellow{border-left-color:#c9a227}
+  .gap h3{margin:0 0 4px;font-size:18px;display:flex;align-items:center;gap:10px}
+  .sev{font-size:11px;font-weight:700;border-radius:6px;padding:2px 9px;white-space:nowrap}
+  .sev.red{background:var(--stop-bg);color:var(--stop)}.sev.orange{background:var(--caution-bg);color:var(--caution)}.sev.yellow{background:#fbf3d0;color:#7a5c00}
+  .gap p{margin:8px 0 0;font-size:14px}
+  .gap .fixdir{margin-top:10px;font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:8px}
+  .verdict{background:var(--teal);color:#fff;border-radius:18px;padding:28px 32px}
+  .verdict h2{color:#fff;margin-top:0}.verdict p{color:#e8f2f6;margin:0;font-size:16px;max-width:76ch}
+  footer{padding:28px 0 56px;color:var(--muted);font-size:12.5px}
+  .mentions{font-size:13.5px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<header class="mast"><div class="wrap">
+  <p class="kicker">OneGov #2 · Drinkwaterzekerheid · Phase 5</p>
+  <h1>Remediation &amp; the gaps nobody has listed yet</h1>
+  <p>Part A closes the six prioritised residuals from the stakeholder critique. Part B puts the policymaker hat back on and asks the awkward questions that decide whether this tool can carry a real advies.</p>
+</div></header>
+
+<section><div class="wrap">
+  <p class="sec-label">Part A</p>
+  <h2>The six residuals — closed</h2>
+  <p class="sub">Backend logic is built and tested in-sandbox (113 tests pass, source gate green). Frontend ships drop-in; two live services activate via one env flag each.</p>
+  <div class="legend">
+    <span class="pill"><span class="tag built">BUILT &amp; TESTED</span> verified here</span>
+    <span class="pill"><span class="tag drop">DROP-IN</span> Vue, build in your env</span>
+    <span class="pill"><span class="tag env">YOUR ENV</span> live service flag</span>
+  </div>
+  <div class="fixgrid">
+    <div class="fix"><h3>1 · Cumulative + "al vergund"</h3><div class="tags"><span class="tag built">BUILT</span><span class="tag drop">DROP-IN</span></div>
+      <p><code>POST /api/scenario/cumulative</code> stacks several project demands + an operator-entered committed-demand layer and flags the <em>stapelingseffect</em> — individually-passing plans that fail together. No permit dataset exists, so "al vergund" is labelled manual entry, ready for an OLO koppeling.</p></div>
+    <div class="fix"><h3>2 · Citations on the SQL assistant</h3><div class="tags"><span class="tag built">BUILT</span><span class="tag drop">DROP-IN</span></div>
+      <p>An append-only <code>cite_sources</code> node maps the tables a query touched to publisher + source link and emits a <code>sources</code> event — the descriptive flow now answers with Bronnen too, without rewriting the workflow.</p></div>
+    <div class="fix"><h3>3 · Live RWS Waterinfo chloride</h3><div class="tags"><span class="tag built">BUILT</span><span class="tag env">YOUR ENV</span></div>
+      <p>Mandatory chloride lookup for IJssel/Lek/Maas; on failure or staleness it returns the last-known value with an explicit <em>"laatste bekende waarde van [datum]"</em> warning — never silent. Set <code>WATERINFO_LIVE=true</code> for live values.</p></div>
+    <div class="fix"><h3>4 · Kennisbasis + map title</h3><div class="tags"><span class="tag built">BUILT</span><span class="tag drop">DROP-IN</span></div>
+      <p><code>GET /api/kennisbasis</code> lists every dataset with publisher, source link, column count and a freshness date; a Kennisbasis panel + a permanent plain-language map-title caption finish the glanceable half of the intuition pointer.</p></div>
+    <div class="fix"><h3>5 · MLflow scenario tracing</h3><div class="tags"><span class="tag built">BUILT</span><span class="tag env">YOUR ENV</span></div>
+      <p>Guarded MLflow spans around every scenario run (params, hash, verdict) — a no-op unless <code>MLFLOW_ENABLED</code>, so the Should "navolgbaar" axis closes in your MLflow UI without touching default behaviour.</p></div>
+    <div class="fix"><h3>6 · Scenario library + verify</h3><div class="tags"><span class="tag built">BUILT</span><span class="tag drop">DROP-IN</span></div>
+      <p><code>GET /api/scenario</code> (browseable saved scenarios with stable URLs) + <code>/{id}/verify</code> (re-run on current data + dataset-drift report). Persistence now records real dataset versions, so verify is meaningful.</p></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <p class="sec-label">Part B · the policymaker speaks</p>
+  <h2>The gaps nobody has listed yet</h2>
+  <p class="sub">"The tool is now genuinely good — legible, sourced, reproducible. So let me be the awkward voice and ask the questions that surface the first time this carries a real advies."</p>
+
+  <div class="gap red"><h3>A · Nobody can prove <em>who</em> ran this <span class="sev red">BLOCKER · Woo</span></h3>
+    <p>There is no real authentication — the user is a stub, and nothing records who ran a scenario or changed an assumption. The moment an output lands in an official advies, the Wet open overheid and basic accountability demand a human-attributable trail. <strong>The tool has perfect calculation provenance and zero human provenance.</strong> This is a bigger production blocker than any data gap.</p>
+    <p class="fixdir">Fix direction: provincial SSO, a per-user action log (ran / shared / promoted / overrode), and the user identity stamped into the citation.</p></div>
+
+  <div class="gap orange"><h3>B · A single number where there should be a confidence band <span class="sev orange">FALSE PRECISION</span></h3>
+    <p>The verdict is a point estimate: "STOP at 66.1" and "CAUTION at 65.9" look identical to the model but flip the advice. Yet the assumptions carry ranges (chloride 150–250, demand 0.10–0.14, growth 0.04–0.12). Uncertainty is shown for <em>inputs</em> but not for the <em>output</em>, so a policymaker defending a STOP can't say how robust it is.</p>
+    <p class="fixdir">Fix direction: sweep the assumption ranges + the four KNMI scenarios and report robustness — "STOP in 3 van 4 klimaatscenario's" — committing only when the band is one-sided.</p></div>
+
+  <div class="gap orange"><h3>C · Who keeps the data fresh? <span class="sev orange">GOVERNANCE</span></h3>
+    <p>The build now detects drift and shows freshness dates — but there is no process: no refresh SLA, no owner, no escalating staleness banner. A 2022 dataset silently underpinning a 2026 advies is a credibility risk even when the date is technically visible.</p>
+    <p class="fixdir">Fix direction: a per-dataset refresh owner + SLA, a staleness banner that escalates, and a scheduled refresh job.</p></div>
+
+  <div class="gap yellow"><h3>D · Privacy asymmetry: the chat remembers everything <span class="sev yellow">AVG / GDPR</span></h3>
+    <p>Phase 3 carefully anonymises PII before caching FAQs — but the descriptive chat sessions store raw user questions (a citizen's postcode or address) in Postgres, with no anonymisation or retention policy. The careful door is locked while the window is open.</p>
+    <p class="fixdir">Fix direction: anonymise-on-write for session storage, a retention window, and a "geen persoonsgegevens invoeren" notice on the citizen path.</p></div>
+
+  <div class="gap yellow"><h3>E · The model has never been checked against reality <span class="sev yellow">CALIBRATION</span></h3>
+    <p>Every number is an assumption-driven composite — sourced and reproducible, but never validated against an actual Dunea/Evides capacity forecast or a published drinkwater study. The disclaimer is honest, yet a jury or director will ask: "has this verdict ever matched a real assessment?" Without a calibration story the tool risks being confidently wrong.</p>
+    <p class="fixdir">Fix direction: a calibration appendix — run the engine against one or two known cases, report agreement, and state the validation status on the card.</p></div>
+
+  <div class="gap yellow"><h3>F · Assumptions change; old adviezen shouldn't silently change with them <span class="sev yellow">REPRODUCIBILITY</span></h3>
+    <p>Assumptions are sourced today, but when weights/thresholds are revised next quarter, re-opening a 2-year-old scenario URL may compute a different verdict — and the old advies cited the old model. The scenario-hash pins parameters, not the assumption <em>library version</em>.</p>
+    <p class="fixdir">Fix direction: version the assumption library (a methodology changelog + an <code>assumptions_version</code> in the citation), so "reproduce exactly as advised on [date]" is possible.</p></div>
+
+  <p class="mentions"><strong>Honourable mentions:</strong> WCAG/accessibility isn't asserted for the citizen path (verdicts do use colour <em>and</em> text — good); and LLM cost / rate-limit / abuse controls aren't visible for a public-facing tool.</p>
+</div></section>
+
+<section><div class="wrap"><div class="verdict">
+  <h2>The one line for the steering group</h2>
+  <p>The tool has crossed from "interesting prototype" to "defensible instrument." But three things still stand between it and a real advies: <strong>a human accountability trail (who), an uncertainty band (how sure), and a calibration story (is it right).</strong> Those — not more features — are the next milestone.</p>
+</div></div></section>
+
+<footer><div class="wrap">Phase 5 remediation + speculative critique · OneGov #2 Drinkwaterzekerheid. Prototypes are exploratory verkenningen, not policy commitments.</div></footer>
+</body>
+</html>

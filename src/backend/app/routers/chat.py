@@ -37,6 +37,7 @@ CUSTOM_EVENT_TO_SSE = {
     "status": "status",
     "error": "error",
     "step_thinking_summary": "step_thinking_summary",
+    "sources_block": "sources",  # Phase 5: hyperlinked Bronnen for descriptive answers
 }
 
 MAX_TITLE_LENGTH = 100

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Stakeholder Critique v2 — Drinkwaterzekerheid build</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ink:#15242e; --muted:#5b6b76; --line:#e3eaef; --paper:#ffffff; --wash:#f5f8fa;
+    --teal:#0a4d68; --teal-soft:#e6f0f4;
+    --go:#1a7f37; --go-bg:#e7f4ec; --caution:#9a6700; --caution-bg:#fdf6e3; --stop:#b3261e; --stop-bg:#fce9e7;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--wash);color:var(--ink);font-family:Inter,system-ui,sans-serif;line-height:1.62;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 6%}
+  h1,h2,h3{font-family:"Source Serif 4",Georgia,serif;line-height:1.18;letter-spacing:-.01em}
+  a{color:var(--teal);text-underline-offset:2px}
+
+  /* Masthead */
+  header.mast{background:var(--teal);color:#fff;padding:54px 0 44px}
+  .mast .wrap{padding-top:0}
+  .kicker{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#bcd7e2;font-weight:600;margin:0 0 14px}
+  header.mast h1{font-size:clamp(30px,5vw,50px);margin:0 0 14px;color:#fff;font-weight:700}
+  header.mast .lede{font-size:clamp(16px,2vw,19px);color:#dcebf1;max-width:64ch;margin:0}
+  .meta{margin-top:22px;font-size:13px;color:#a9cad8;display:flex;flex-wrap:wrap;gap:6px 20px}
+
+  section{padding:38px 0}
+  section + section{border-top:1px solid var(--line)}
+  .sec-label{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);font-weight:700;margin:0 0 6px}
+  h2{font-size:clamp(22px,3vw,30px);margin:0 0 8px}
+  .sub{color:var(--muted);margin:0 0 26px;max-width:74ch}
+
+  /* Legend / pointers */
+  .legend{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 22px}
+  .pill{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;border-radius:999px;padding:5px 13px;border:1px solid transparent}
+  .pill.go{background:var(--go-bg);color:var(--go);border-color:#bfe2cb}
+  .pill.caution{background:var(--caution-bg);color:var(--caution);border-color:#eddca6}
+  .pill.stop{background:var(--stop-bg);color:var(--stop);border-color:#f0c4bf}
+  .pointers{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+  .pointer{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .pointer b{display:block;font-size:15px;margin-bottom:3px}
+  .pointer span{font-size:13.5px;color:var(--muted)}
+
+  /* Stat tiles */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:22px}
+  .stat{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:20px;text-align:center}
+  .stat .n{font-family:"Source Serif 4",serif;font-size:40px;font-weight:700;line-height:1}
+  .stat .l{font-size:12.5px;color:var(--muted);margin-top:8px;font-weight:500}
+  .stat.go .n{color:var(--go)} .stat.caution .n{color:var(--caution)} .stat.stop .n{color:var(--stop)} .stat.teal .n{color:var(--teal)}
+  .headline{background:linear-gradient(180deg,#fff,var(--teal-soft));border:1px solid #cfe0e8;border-radius:16px;padding:22px 24px;margin-top:6px}
+  .headline b{color:var(--teal)}
+
+  /* Stakeholder cards */
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px}
+  .card{background:var(--paper);border:1px solid var(--line);border-left:5px solid var(--teal);border-radius:14px;padding:22px 24px}
+  .card h3{font-size:19px;margin:0 0 2px}
+  .card .role{font-size:13px;color:var(--muted);font-style:italic;margin:0 0 16px}
+  .card h4{font-size:12px;letter-spacing:.08em;text-transform:uppercase;margin:16px 0 8px;color:var(--ink)}
+  .card ul{margin:0;padding:0;list-style:none}
+  .card li{position:relative;padding-left:26px;margin:8px 0;font-size:14px}
+  .card li .ic{position:absolute;left:0;top:1px;font-size:14px}
+  .works li .ic{color:var(--go)}
+  .itch li.p .ic{color:var(--caution)} .itch li.o .ic{color:var(--stop)}
+
+  /* Table */
+  .tbl{width:100%;border-collapse:collapse;background:var(--paper);border:1px solid var(--line);border-radius:14px;overflow:hidden;font-size:14px}
+  .tbl th,.tbl td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+  .tbl th{background:var(--wash);font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .tbl tr:last-child td{border-bottom:none}
+  .badge{display:inline-block;font-size:11.5px;font-weight:700;border-radius:6px;padding:3px 9px;white-space:nowrap}
+  .badge.go{background:var(--go-bg);color:var(--go)} .badge.caution{background:var(--caution-bg);color:var(--caution)} .badge.stop{background:var(--stop-bg);color:var(--stop)}
+  .tbl td code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;background:var(--wash);padding:1px 5px;border-radius:4px}
+
+  /* Criteria + residual */
+  .crit{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+  .crit .box{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+  .crit .box h4{margin:0 0 8px;font-size:15px}
+  .crit .box p{margin:0;font-size:13.5px;color:var(--muted)}
+  ol.resid{counter-reset:r;list-style:none;padding:0;margin:0;display:grid;gap:12px}
+  ol.resid li{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px 16px 14px 52px;position:relative;font-size:14px}
+  ol.resid li::before{counter-increment:r;content:counter(r);position:absolute;left:14px;top:13px;width:26px;height:26px;border-radius:50%;background:var(--teal);color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center}
+
+  .verdict{background:var(--teal);color:#fff;border-radius:18px;padding:30px 34px}
+  .verdict h2{color:#fff;margin-top:0}
+  .verdict p{color:#e0eef3;margin:0;font-size:16px;max-width:74ch}
+
+  .sources{columns:2;column-gap:34px}
+  .sources a{display:block;margin:7px 0;font-size:13.5px;break-inside:avoid}
+  @media(max-width:640px){.sources{columns:1}}
+  footer{padding:30px 0 60px;color:var(--muted);font-size:12.5px}
+  .note{font-size:12.5px;color:var(--muted);font-style:italic;margin-top:10px}
+</style>
+</head>
+<body>
+
+<header class="mast">
+  <div class="wrap">
+    <p class="kicker">OneGov #2 · Provincie Zuid-Holland · Drinkwaterzekerheid</p>
+    <h1>Stakeholder Critique v2</h1>
+    <p class="lede">Five voices. One tool. A re-assessment of the <em>complete shipped build</em> against the ten gaps the first critique raised — the scenario engine, the original descriptive assistant, the data dictionary, the frontend, and the new GreenPT knowledge chatbot.</p>
+    <div class="meta">
+      <span>Re-assessed against the shipped code</span><span>Audience: non-technical policy makers &amp; the vakjury</span><span>Grounded in the official Challenge Brief</span>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <p class="sec-label">How to read this</p>
+    <h2>From design-doc gaps to a working build</h2>
+    <p class="sub">The first critique read the <a href="https://github.com/knarayanareddy/onegov2/blob/main/initdoc/stakeholdercritique.md" target="_blank" rel="noopener noreferrer">design document</a> and found ten gaps, woven through three "overheard pointers". This version steps back into each stakeholder's shoes and re-scores every gap against what the build actually does today.</p>
+    <div class="legend">
+      <span class="pill go">✅ Fixed</span>
+      <span class="pill caution">🟡 Partial</span>
+      <span class="pill stop">⛔ Open</span>
+    </div>
+    <div class="pointers">
+      <div class="pointer"><b>🏚️ Silo</b><span>People work in isolation, no shared truth.</span></div>
+      <div class="pointer"><b>🪞 Consistency</b><span>The same query should give everyone the same answer.</span></div>
+      <div class="pointer"><b>👁️ Intuition + transparency</b><span>Instantly understandable; every output self-explanatory, with sources.</span></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="sec-label">At a glance</p>
+    <h2>Where the ten gaps stand now</h2>
+    <div class="stats">
+      <div class="stat go"><div class="n">6</div><div class="l">Fixed</div></div>
+      <div class="stat caution"><div class="n">3</div><div class="l">Partial</div></div>
+      <div class="stat stop"><div class="n">1</div><div class="l">Open</div></div>
+      <div class="stat teal"><div class="n">✓</div><div class="l">Headline requirement met</div></div>
+    </div>
+    <div class="headline">
+      <p style="margin:0"><b>"Query any aspect and get relevant information, with sources and hyperlinks."</b> — Delivered. The new Dutch knowledge chatbot answers questions about the build, the datasets and the methodology in plain B1-Dutch, <b>always with a clickable Bronnen list</b>, and surfaces the honest data caveats instead of overstating them. One caveat: the original descriptive SQL assistant still answers in prose without citations — unifying sources across <em>both</em> query surfaces is the cleanest next step.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="sec-label">The five voices</p>
+    <h2>What got fixed, what still itches</h2>
+    <p class="sub">Each stakeholder is named in the challenge brief. Their daily job hasn't changed — so the test is whether the build now answers the question they actually bring to work.</p>
+    <div class="cards">
+
+      <div class="card">
+        <h3>1 · Provincial Policymaker</h3>
+        <p class="role">"Ik schrijf adviezen en brief Provinciale Staten. Ik ben geen hydroloog."</p>
+        <h4>What now works</h4>
+        <ul class="works">
+          <li><span class="ic">✅</span> I can ask the tool <em>what it knows</em> and get sourced, plain-Dutch answers — my #1 ask in v1.</li>
+          <li><span class="ic">✅</span> A defensible citation: APA string + Scenario-ID, hash, date, software commit, dataset versions, stable URL — plus a one-click PDF adviesnota.</li>
+          <li><span class="ic">✅</span> Plain-language GO / CAUTION / STOP verdict before any number; official policy links attached with a disclaimer.</li>
+        </ul>
+        <h4>What still itches</h4>
+        <ul class="itch">
+          <li class="p"><span class="ic">🟡</span> No always-visible "Kennisbasis" panel with dataset freshness dates — I can ask, but not glance.</li>
+          <li class="p"><span class="ic">🟡</span> Stable URLs exist, but no browseable saved-scenario <em>library</em> to confirm a colleague and I opened the same calculation.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>2 · Spatial Planner (Omgevingsdienst)</h3>
+        <p class="role">"200+ vergunningstoetsen open. Ik heb snelle, verdedigbare antwoorden nodig."</p>
+        <h4>What now works</h4>
+        <ul class="works">
+          <li><span class="ic">✅</span> One-second GO/CAUTION/STOP on every plan, with the share of niet-haalbaar cells.</li>
+          <li><span class="ic">✅</span> "Wat maakt dit haalbaar?" — ranked interventions, re-scored on real data, each with a source.</li>
+          <li><span class="ic">✅</span> What-if sliders and a validated recipe-builder (never free-form code).</li>
+        </ul>
+        <h4>What still itches</h4>
+        <ul class="itch">
+          <li class="o"><span class="ic">⛔</span> Cumulative effect: I still can't drop several concurrent plans and see their <em>combined</em> load on a zone.</li>
+          <li class="o"><span class="ic">⛔</span> No "al vergund / in behandeling" demand layer — residual capacity doesn't net out approved permits (the operational dataset ships empty).</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>3 · Water Authority (Dunea / Evides / Oasen)</h3>
+        <p class="role">"Ik plan productiecapaciteit 10–25 jaar vooruit."</p>
+        <h4>What now works</h4>
+        <ul class="works">
+          <li><span class="ic">✅</span> Per-intake chloride threshold mechanism (sourced 150 mg/L fallback, explicitly flagged — never a silent global constant).</li>
+          <li><span class="ic">✅</span> Determinism I can cite in a dispute: parameters hash to a stable ID, results cache, dataset versions recorded, LLM at temperature 0.</li>
+          <li><span class="ic">✅</span> Honest about the salinity signal being a saturated <em>mask</em>, amplified by the KNMI dryness knob.</li>
+        </ul>
+        <h4>What still itches</h4>
+        <ul class="itch">
+          <li class="p"><span class="ic">🟡</span> Live Waterinfo (RWS) chloride still isn't mandatory for IJssel/Lek/Maas — a labelled fallback, not the live feed.</li>
+          <li class="p"><span class="ic">🟡</span> Per-intake thresholds are mechanism-only until <code>productieketen</code> data lands.</li>
+          <li class="o"><span class="ic">⛔</span> No directed production-chain flow view (intake → productie → distributie).</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>4 · Project Developer</h3>
+        <p class="role">"Ik wil weten of mijn project water krijgt. Geen wateropleiding."</p>
+        <h4>What now works</h4>
+        <ul class="works">
+          <li><span class="ic">✅</span> Numbers I can feel: every headline metric carries a plain-Dutch, VEWIN-sourced human-scale analogy.</li>
+          <li><span class="ic">✅</span> The feasibility traffic light + the "make it feasible" options before I buy land.</li>
+          <li><span class="ic">✅</span> A stable, shareable scenario URL for a financing memo.</li>
+        </ul>
+        <h4>What still itches</h4>
+        <ul class="itch">
+          <li class="o"><span class="ic">⛔</span> I can't see if another developer already claimed the headroom — two plans both read "green" because nothing nets them together.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>5 · General Public / Citizen</h3>
+        <p class="role">"Ik woon in Zoetermeer en wil weten of mijn drinkwater veilig is in 2040."</p>
+        <h4>What now works</h4>
+        <ul class="works">
+          <li><span class="ic">✅</span> A real citizen answer: verdict-first, jargon-free, &lt;100 words, names my water company with phone + link, points to official policy, with a "verkenning, geen meting" disclaimer.</li>
+          <li><span class="ic">✅</span> It won't quietly contradict the official line — every answer is anchored to the published Waterprogramma / KNMI position.</li>
+        </ul>
+        <h4>What still itches</h4>
+        <ul class="itch">
+          <li class="p"><span class="ic">🟡</span> The citizen response exists in the engine, but a dedicated "burger" front-door view would close the loop.</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="sec-label">Evidence</p>
+    <h2>The ten gaps — status table</h2>
+    <p class="sub">Every status is backed by a concrete feature in the build.</p>
+    <table class="tbl">
+      <thead><tr><th style="width:34px">#</th><th>Gap (from v1)</th><th style="width:96px">Status</th><th>Evidence in the build</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>"What does this system know?" / Kennisbasis</td><td><span class="badge caution">🟡 mostly</span></td><td>Chatbot answers data/methodology questions <strong>with sourced citations</strong> + a data-limits intent; <code>/api/dictionary</code> exists. Residual: no always-visible freshness panel.</td></tr>
+        <tr><td>2</td><td>Shared scenario library + stable URL + same-answer + dataset version</td><td><span class="badge go">✅ spine</span></td><td><code>GET /api/scenario/{id}</code>, <code>scenario_hash</code>, dataset versions, drift detection, temp-0 engine. Residual: browse-list UI + <code>/verify</code>.</td></tr>
+        <tr><td>3</td><td>Formal citation / export metadata</td><td><span class="badge go">✅ Fixed</span></td><td><code>build_citation</code> (APA + ID + hash + commit + versions + URL) and a PDF adviesnota.</td></tr>
+        <tr><td>4</td><td>Human-scale contextualisation</td><td><span class="badge go">✅ Fixed</span></td><td><code>human_scale</code> analogies in the card, the PDF and citizen mode.</td></tr>
+        <tr><td>5</td><td>"Make this feasible" recommendation flow</td><td><span class="badge go">✅ Fixed</span></td><td>Interventions re-scored on real data, ranked by STOP-share reduction, each sourced.</td></tr>
+        <tr><td>6</td><td>Cumulative / stacking effect + "al vergund" layer</td><td><span class="badge stop">⛔ Open</span></td><td>Comparison + added-homes lever exist; <strong>no multi-project overlay, no committed-demand layer</strong>.</td></tr>
+        <tr><td>7</td><td>Per-location chloride threshold</td><td><span class="badge go">✅ mechanism</span></td><td>Per-intake lookup + sourced 150 mg/L fallback flagged as an assumption (data ships empty).</td></tr>
+        <tr><td>8</td><td>"What does the government say?" panel</td><td><span class="badge go">✅ Fixed</span></td><td>Official-positions registry with links + disclaimer on every scenario; in the chatbot corpus.</td></tr>
+        <tr><td>9</td><td>Waterinfo chloride live / mandatory</td><td><span class="badge caution">🟡 Partial</span></td><td>Verzilting-class fallback, labelled, never silent; live RWS feed not wired.</td></tr>
+        <tr><td>10</td><td>Citizen response format</td><td><span class="badge go">✅ Fixed</span></td><td>Verdict-first, postcode, water company, official links, disclaimer.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="sec-label">Scorecard</p>
+    <h2>The three pointers</h2>
+    <table class="tbl">
+      <thead><tr><th style="width:200px">Pointer</th><th style="width:150px">Verdict</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>🏚️ <strong>Silo</strong></td><td><span class="badge go">Largely closed</span></td><td>Stable scenario URLs + a reproducible hash + a shared knowledge chatbot that gives <em>everyone the same sourced answer</em>. Residual: cumulative overlay, "al vergund" layer, scenario-library UI.</td></tr>
+        <tr><td>🪞 <strong>Consistency</strong></td><td><span class="badge go">Strong</span></td><td><strong>Hard-deterministic</strong> for scenarios (hash + cache + dataset version + temp-0 arithmetic); <strong>strong</strong> for the chatbot (temp-0 + deterministic retrieval + keyless fallback + versioned cache). Weaker only for the legacy descriptive SQL prose (generative).</td></tr>
+        <tr><td>👁️ <strong>Intuition + transparency</strong></td><td><span class="badge go">Strong</span></td><td>GO/CAUTION/STOP first, an Insight reasoning trail, human-scale analogies, official-policy links, citizen mode, chatbot answers with clickable sources, a PDF adviesnota. Residual: a permanent map-title caption, a glanceable Kennisbasis panel, and citations on the descriptive SQL path.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="sec-label">Jury alignment</p>
+    <h2>Against the Challenge Brief criteria</h2>
+    <div class="crit">
+      <div class="box"><h4>Moet (Must) · ✅ all met</h4><p>Works on the supplied data; answers exploratory what-if questions combining ≥2 themes (verzilting × CBS × zes-uurszones); open-source with READMEs; the original descriptive flow still works untouched.</p></div>
+      <div class="box"><h4>Zou moeten (Should) · ✅ / 🟡</h4><p>Two+ scenarios + a with/without-shock comparison; uncertainty, assumptions and time-horizon shown explicitly; ambiguous input gets a clarifying question. <em>Navolgbaar</em>: Insight trail + chatbot citations done; MLflow scenario tracing still deferred.</p></div>
+      <div class="box"><h4>Zou niet (Should not) · ✅ respected</h4><p>The LangGraph / DuckDB / frontend architecture was <em>extended, not rebuilt</em>; the reasoning chain is never hidden behind a single answer.</p></div>
+      <div class="box"><h4>Kan (Could) · ✅ / 🟡</h4><p>A dedicated scenario node composing shocks; a sliders/presets UI (the recipe-builder). Explicit FDS / NORA alignment not yet documented.</p></div>
+    </div>
+    <p class="note">The project's own v3 re-grade scored 34/46 implemented <em>before</em> the chatbot existed; the chatbot advances Gap 1 and the headline "query-anything-with-sources" capability beyond that grade.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="sec-label">What's left</p>
+    <h2>Consolidated residual gaps, prioritised</h2>
+    <ol class="resid">
+      <li><strong>Cumulative / multi-project overlay + "al vergund" layer</strong> — the deepest remaining silo gap (planner, developer, water authority). Needs a committed-demand data source.</li>
+      <li><strong>Bring source-citations to the descriptive SQL assistant</strong> — so <em>every</em> query surface, not just the new chatbot, answers with hyperlinks. Highest-leverage transparency fix.</li>
+      <li><strong>Live Waterinfo (RWS) chloride</strong> for IJssel/Lek/Maas intake scenarios — mandatory, with an explicit "laatste bekende waarde van [datum]" warning on failure.</li>
+      <li><strong>Always-visible Kennisbasis + freshness panel</strong> and a <strong>permanent plain-language map title</strong> — finish the glanceable half of the intuition pointer.</li>
+      <li><strong>MLflow scenario tracing</strong> — closes the last "navolgbaar" axis for the jury.</li>
+      <li><strong>Shared scenario-library UI + a <code>/verify</code> re-run</strong> — turn the existing stable URLs into a browseable, re-verifiable institutional library.</li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="verdict">
+      <h2>Verdict</h2>
+      <p>The remediation landed. Six of the ten gaps are fully fixed, three partial, one open — and the headline "ask anything, get sourced answers" requirement is now real through the knowledge chatbot. Silos are broken by shared, reproducible, sourced outputs; consistency is hard-guaranteed for scenarios; transparency is strong end-to-end. What remains is <strong>additive, not corrective</strong>: the cumulative-effect overlay (data-dependent), citations on the legacy SQL path, live Waterinfo, MLflow tracing, and a few glanceable UI panels. For a non-technical policy audience the tool is now legible, defensible and citeable.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="sec-label">Bronnen</p>
+    <h2>Sources &amp; references</h2>
+    <p class="sub">The build anchors every scenario to these published sources — the same links the tool itself surfaces.</p>
+    <div class="sources">
+      <a href="https://github.com/knarayanareddy/onegov2/blob/main/initdoc/stakeholdercritique.md" target="_blank" rel="noopener noreferrer">Prior critique (v1) — design-document gaps</a>
+      <a href="https://github.com/knarayanareddy/onegov2" target="_blank" rel="noopener noreferrer">Build repository (fork)</a>
+      <a href="https://alkem.io/onegov-hackathon/challenges/ruimtelijkeassistentdrink" target="_blank" rel="noopener noreferrer">OneGov #2 Challenge — Ruimtelijke Assistent Drinkwater</a>
+      <a href="https://www.pzh.nl/regiovisie-waterprogramma-2022-2027" target="_blank" rel="noopener noreferrer">Regionaal Waterprogramma Zuid-Holland 2022–2027</a>
+      <a href="https://www.rijksoverheid.nl/onderwerpen/water/nationaal-waterprogramma" target="_blank" rel="noopener noreferrer">Nationaal Waterprogramma 2022–2027</a>
+      <a href="https://www.knmi.nl/klimaatscenarios" target="_blank" rel="noopener noreferrer">KNMI'23 Klimaatscenario's</a>
+      <a href="https://www.rijkswaterstaat.nl/water/waterbeheer/bescherming-en-gebruik-van-water/drinkwater/kaderrichtlijn-water" target="_blank" rel="noopener noreferrer">Kaderrichtlijn Water — Rijkswaterstaat</a>
+      <a href="https://www.vewin.nl/publicaties/waterstatistiek" target="_blank" rel="noopener noreferrer">VEWIN Waterstatistiek</a>
+      <a href="https://wetten.overheid.nl/BWBR0026304" target="_blank" rel="noopener noreferrer">Drinkwaterbesluit (chloride-norm)</a>
+      <a href="https://www.dunea.nl" target="_blank" rel="noopener noreferrer">Dunea — drinkwaterbedrijf</a>
+      <a href="https://www.evides.nl" target="_blank" rel="noopener noreferrer">Evides Waterbedrijf</a>
+      <a href="https://www.oasen.nl" target="_blank" rel="noopener noreferrer">Oasen</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    Stakeholder Critique v2 · A re-assessment of the OneGov #2 Drinkwaterzekerheid build against the ten gaps from the first critique. Prototypes from the hackathon are exploratory verkenningen, not policy commitments.
+  </div>
+</footer>
+
+</body>
+</html>

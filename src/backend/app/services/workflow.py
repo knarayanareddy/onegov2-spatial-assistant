@@ -1,6 +1,7 @@
 from langgraph.graph import END, StateGraph
 
 from app.models.state import ConversationState
+from app.services.nodes.cite_sources import CiteSourcesNode
 from app.services.nodes.describe_results import DescribeResultsNode
 from app.services.nodes.execute_query import ExecuteQueryNode
 from app.services.nodes.intent import IntentNode
@@ -39,6 +40,7 @@ def create_workflow():
     graph.add_node("execute_query", ExecuteQueryNode())
     graph.add_node("plan_visualization", PlanVisualizationNode())
     graph.add_node("describe_results", DescribeResultsNode())
+    graph.add_node("cite_sources", CiteSourcesNode())  # Phase 5: hyperlinked Bronnen
 
     graph.set_entry_point("check_intent")
     graph.add_conditional_edges(
@@ -59,7 +61,8 @@ def create_workflow():
     graph.add_edge("generate_sql", "execute_query")
     graph.add_edge("execute_query", "plan_visualization")
     graph.add_edge("plan_visualization", "describe_results")
-    graph.add_edge("describe_results", END)
+    graph.add_edge("describe_results", "cite_sources")
+    graph.add_edge("cite_sources", END)
 
     return graph.compile()
 
