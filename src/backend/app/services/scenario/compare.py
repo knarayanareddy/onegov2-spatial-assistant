@@ -21,9 +21,13 @@ engine reports — attribution can never silently drift from the verdict.
 """
 from __future__ import annotations
 
+import glob
 import json
+import os
 from dataclasses import asdict
 from typing import Any
+
+import duckdb
 
 from app.services.scenario import real_scoring
 from app.services.scenario.area import select_h3_area
@@ -115,6 +119,81 @@ def _factor_means(cells: list[dict]) -> dict[str, float]:
     return {f: sum(c[f] for c in cells) / n for f in real_scoring.FACTORS}
 
 
+def _norm_h3(col: str) -> str:
+    """Same normalisation as real_scoring._norm."""
+    lc = f"lower({col})"
+    return f"CASE WHEN length({lc})=16 AND {lc} LIKE '0%' THEN substr({lc},2) ELSE {lc} END"
+
+
+def _cell_context(data_dir: str, h3_ids: list[str]) -> dict[str, dict]:
+    """Return contextual attributes for each H3 cell: drinkwaterbedrijf, salinity,
+    flood severity, 6-hour zone. Used to enrich the tooltip."""
+    if not h3_ids:
+        return {}
+    try:
+        con = duckdb.connect()
+        vals = ", ".join(f"'{h}'" for h in h3_ids)
+
+        # drinkwaterbedrijven — dominant company per cell (max id_fraction)
+        wb_glob = glob.glob(os.path.join(data_dir, "drinkwaterzekerheid", "drinkwaterbedrijven", "*.parquet"))
+        vz_glob = glob.glob(os.path.join(data_dir, "gebiedsviewer", "verzilting", "*.parquet"))
+        ov_glob = glob.glob(os.path.join(data_dir, "gebiedsviewer",
+                            "overstromingen_kwetsbaarheid_panden_na_dijkdoorbraak", "*.parquet"))
+        zes_glob = glob.glob(os.path.join(data_dir, "drinkwaterzekerheid",
+                             "zes_uur_zones_drinkwater", "*.parquet"))
+
+        ctx: dict[str, dict] = {h: {} for h in h3_ids}
+
+        if wb_glob:
+            rows = con.execute(f"""
+                SELECT {_norm_h3('h3_id')} AS h, naam
+                FROM read_parquet('{wb_glob[0]}')
+                WHERE {_norm_h3('h3_id')} IN ({vals})
+                QUALIFY ROW_NUMBER() OVER (PARTITION BY {_norm_h3('h3_id')} ORDER BY id_fraction DESC) = 1
+            """).fetchall()
+            for h, naam in rows:
+                if h in ctx:
+                    ctx[h]["naam"] = naam
+
+        if vz_glob:
+            rows = con.execute(f"""
+                SELECT DISTINCT {_norm_h3('h3_id')} AS h
+                FROM read_parquet('{vz_glob[0]}')
+                WHERE RELEVANT='ja' AND ZOUT_CONC LIKE '%200%'
+                  AND {_norm_h3('h3_id')} IN ({vals})
+            """).fetchall()
+            for (h,) in rows:
+                if h in ctx:
+                    ctx[h]["verzilting"] = True
+
+        if ov_glob:
+            FLOOD_MAP = {"Niet kwetsbaar": "Geen", "0 - 0,2 m": "Laag",
+                         "0,2 - 0,5 m": "Matig", "0,5 - 2,0 m": "Hoog",
+                         "Meer dan 2 m": "Zeer hoog", "Onbekend": "Onbekend"}
+            rows = con.execute(f"""
+                SELECT {_norm_h3('h3_id')} AS h, Risico
+                FROM read_parquet('{ov_glob[0]}')
+                WHERE {_norm_h3('h3_id')} IN ({vals})
+            """).fetchall()
+            for h, risico in rows:
+                if h in ctx:
+                    ctx[h]["overstromingsrisico"] = FLOOD_MAP.get(risico, risico or "—")
+
+        if zes_glob:
+            rows = con.execute(f"""
+                SELECT DISTINCT {_norm_h3('h3_id')} AS h
+                FROM read_parquet('{zes_glob[0]}')
+                WHERE {_norm_h3('h3_id')} IN ({vals})
+            """).fetchall()
+            for (h,) in rows:
+                if h in ctx:
+                    ctx[h]["in_zes_uur_zone"] = True
+
+        return ctx
+    except Exception:
+        return {}
+
+
 def compare_scenarios(spec_a: dict, spec_b: dict, data_dir: str, store: Any | None = None,
                       base: str | None = None, area_cells: list[str] | None = None,
                       top_n: int = 25) -> dict:
@@ -196,14 +275,37 @@ def compare_scenarios(spec_a: dict, spec_b: dict, data_dir: str, store: Any | No
         ),
     )
 
+    # Enrich overlay cells with contextual attributes from the shipped datasets:
+    # drinkwaterbedrijf, salinity flag, flood severity, 6-hour zone.
+    _ctx = _cell_context(data_dir, [d["h3_id"] for d in diffs])
+    VLABEL_NL = {"GO": "HAALBAAR", "CAUTION": "RISICO", "STOP": "NIET HAALBAAR"}
+    overlay_cells = []
+    for d in diffs:
+        ctx = _ctx.get(d["h3_id"], {})
+        overlay_cells.append({
+            "h3_id":            d["h3_id"],
+            "delta":            d["delta"],
+            "score_a":          d["score_a"],
+            "score_b":          d["score_b"],
+            "verdict_a":        d["klasse_a"],
+            "verdict_b":        d["klasse_b"],
+            "verdict_a_nl":     VLABEL_NL.get(d["klasse_a"], d["klasse_a"]),
+            "verdict_b_nl":     VLABEL_NL.get(d["klasse_b"], d["klasse_b"]),
+            "drinkwaterbedrijf": ctx.get("naam", "—"),
+            "verzilting":       ctx.get("verzilting", False),
+            "overstromingsrisico": ctx.get("overstromingsrisico", "—"),
+            "in_zes_uur_zone":  ctx.get("in_zes_uur_zone", False),
+        })
+
     # Full per-cell overlay for the map (every cell, coloured by A->B delta).
     overlay = {
         "layer_id": "compare_delta_h3",
         "label_nl": "Verschil DrinkwaterDruk (A → B) per H3-cel",
         "type": "H3HexagonLayer",
-        "cells": [{"h3_id": d["h3_id"], "delta": d["delta"],
-                   "score_a": d["score_a"], "score_b": d["score_b"]} for d in diffs],
+        "cells": overlay_cells,
         "legend_nl": {"up": "hoger (slechter) in B", "down": "lager (beter) in B", "zero": "gelijk"},
+        "label_a": side_a["label"],
+        "label_b": side_b["label"],
     }
 
     return {
