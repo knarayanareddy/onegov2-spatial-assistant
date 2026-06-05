@@ -94,6 +94,18 @@ def test_compare_percell_diff_and_transitions_shape():
         assert {"from", "to", "n"} <= set(t) and t["from"] != t["to"]
 
 
+def test_compare_overlay_covers_universe_with_deltas():
+    res = compare_scenarios({"assumptions": _DRY_LOW}, {"assumptions": _DRY_HIGH}, DATA, store=None)
+    ov = res["overlay"]
+    assert ov["layer_id"] == "compare_delta_h3" and ov["type"] == "H3HexagonLayer"
+    # one cell per universe cell, each with an h3 id and a numeric delta
+    assert len(ov["cells"]) == res["universe"]["n_cells"]
+    for c in ov["cells"][:50]:
+        assert c["h3_id"] and isinstance(c["delta"], (int, float))
+    # the dry shock pushes at least one cell's delta positive
+    assert any(c["delta"] > 0 for c in ov["cells"])
+
+
 def test_compare_identical_sides_no_change():
     res = compare_scenarios({"assumptions": _DRY_LOW}, {"assumptions": _DRY_LOW}, DATA, store=None)
     assert res["delta"]["score_avg_delta"] == 0

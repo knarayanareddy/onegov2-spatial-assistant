@@ -4,7 +4,11 @@
      (verzilting/overstroming/bescherming/vraag) and a per-cell diff with verdict
      transitions. Plain JSON endpoint (no SSE). -->
 <script setup lang="ts">
-import { reactive, ref } from "vue";
+import { onMounted, reactive, ref } from "vue";
+import { MapboxOverlay } from "@deck.gl/mapbox";
+import { H3HexagonLayer } from "@deck.gl/geo-layers";
+import maplibregl from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
 
 const VLABEL: Record<string, string> = { GO: "HAALBAAR", CAUTION: "RISICO", STOP: "NIET HAALBAAR" };
 const KNOBS: { key: string; label: string }[] = [
@@ -47,6 +51,7 @@ async function compare() {
       error.value = `Serverfout (${r.status})`;
     } else {
       result.value = await r.json();
+      renderOverlay(result.value?.overlay?.cells ?? []);
     }
   } catch {
     error.value = "Kan de server niet bereiken.";
@@ -61,6 +66,45 @@ function signed(x: number, digits = 1): string {
 function barWidth(share: number): string {
   return `${Math.min(100, Math.abs(share))}%`;
 }
+
+// ---- delta-map overlay (deck.gl H3HexagonLayer over MapLibre) ----
+const mapEl = ref<HTMLDivElement | null>(null);
+let overlay: MapboxOverlay | null = null;
+
+// Diverging colour: red where B is worse (delta > 0), green where B is better
+// (delta < 0), neutral near zero. Alpha scales with magnitude (capped at ±50).
+function deltaColor(d: number): [number, number, number, number] {
+  const x = Math.max(-50, Math.min(50, d)) / 50;
+  if (x > 0.02) return [220, 53, 69, Math.round(70 + 150 * x)];
+  if (x < -0.02) return [40, 167, 69, Math.round(70 + 150 * -x)];
+  return [150, 160, 170, 60];
+}
+
+function renderOverlay(cells: any[]) {
+  if (!overlay) return;
+  overlay.setProps({
+    layers: [new H3HexagonLayer({
+      id: "compare_delta_h3",
+      data: cells,
+      pickable: true,
+      extruded: false,
+      getHexagon: (d: any) => d.h3_id,
+      getFillColor: (d: any) => deltaColor(d.delta),
+      getLineColor: [255, 255, 255, 30],
+      lineWidthMinPixels: 0.5,
+    })],
+  });
+}
+
+onMounted(() => {
+  if (!mapEl.value) return;
+  const map = new maplibregl.Map({
+    container: mapEl.value, style: "https://demotiles.maplibre.org/style.json",
+    center: [4.5, 51.92], zoom: 7.5,
+  });
+  overlay = new MapboxOverlay({ interleaved: true, layers: [] });
+  map.addControl(overlay as any);
+});
 </script>
 
 <template>
@@ -98,6 +142,17 @@ function barWidth(share: number): string {
       </label>
       <button :disabled="loading" @click="compare">{{ loading ? "Bezig…" : "Vergelijk" }}</button>
     </div>
+
+    <section class="mapsec">
+      <div class="maptitle">Kaart: verschil in DrinkwaterDruk per H3-cel (A → B)</div>
+      <div ref="mapEl" class="map" />
+      <ul class="legend">
+        <li><i style="background:#dc3545" />hoger (slechter) in B</li>
+        <li><i style="background:#28a745" />lager (beter) in B</li>
+        <li><i style="background:#96a0aa" />ongeveer gelijk</li>
+      </ul>
+      <p v-if="!result" class="maphint">Klik op “Vergelijk” om het verschil per cel op de kaart te tonen.</p>
+    </section>
 
     <p v-if="error" class="err">⚠️ {{ error }}</p>
 
@@ -165,6 +220,13 @@ function barWidth(share: number): string {
 .actions select { margin-left: 6px; padding: 5px 8px; border: 1px solid #cfdde4; border-radius: 6px; }
 .actions button { padding: 8px 16px; border: 1px solid #0a4d68; background: #0a4d68; color: #fff; border-radius: 8px; cursor: pointer; }
 .actions button:disabled { opacity: 0.6; cursor: default; }
+.mapsec { position: relative; margin: 6px 0 14px; }
+.maptitle { font-size: 12.5px; font-weight: 600; color: #0a4d68; margin-bottom: 6px; }
+.map { position: relative; height: 360px; border-radius: 8px; overflow: hidden; border: 1px solid #dce3e8; }
+.mapsec .legend { position: absolute; right: 10px; bottom: 10px; background: #fff; padding: 6px 10px; border-radius: 6px; list-style: none; margin: 0; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
+.mapsec .legend li { display: flex; align-items: center; gap: 6px; font-size: 11.5px; }
+.mapsec .legend i { width: 12px; height: 12px; border-radius: 2px; display: inline-block; }
+.maphint { position: absolute; top: 40px; left: 50%; transform: translateX(-50%); background: rgba(255,255,255,.92); padding: 6px 12px; border-radius: 6px; font-size: 12.5px; color: #33485c; }
 .err { color: #b3261e; }
 .verdict-row { display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; font-size: 13px; }
 .badge { background: #0a4d68; color: #fff; padding: 4px 10px; border-radius: 8px; font-weight: 700; }
