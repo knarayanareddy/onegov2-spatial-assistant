@@ -85,7 +85,7 @@ async function runUncertainty() {
 
 onMounted(() => {
   const map = new maplibregl.Map({
-    container: mapEl.value!, style: "https://demotiles.maplibre.org/style.json",
+    container: mapEl.value!, style: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
     center: [4.5, 51.92], zoom: 8,
   });
   overlay = new MapboxOverlay({ interleaved: true, layers: [] });
