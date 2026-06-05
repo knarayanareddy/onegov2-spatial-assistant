@@ -93,10 +93,41 @@ class IntentNode(BaseNode):
                     if tables:
                         f.table = tables[0]
 
+        # Loop-break: if the assistant already asked a clarifying question in
+        # this conversation and the LLM is still returning is_clear=False with
+        # the SAME (or very similar) follow-up, stop the loop and pick the
+        # best guess. A policy maker saying "ja" or restating their question
+        # should never be met with the same question a second time.
         if not result.is_clear:
-            await self.dispatch(
-                "follow_up_text", {"content": result.follow_up_question}, config
-            )
+            messages = state.get("messages", [])
+            prior_followups = [
+                m.get("content", "")
+                for m in messages
+                if m.get("role") == "assistant"
+                and result.follow_up_question
+                and any(
+                    kw in m.get("content", "")
+                    for kw in (result.follow_up_question or "")[:60].split()
+                    if len(kw) > 4
+                )
+            ]
+            if prior_followups:
+                # The same clarifying question was already asked — do NOT repeat.
+                # Emit a gentle acknowledgement and let the workflow continue
+                # with the best-guess intent (is_clear stays False so SQL is
+                # skipped, but the user gets a useful message instead of a loop).
+                await self.dispatch(
+                    "follow_up_text",
+                    {"content": (
+                        "Ik heb uw antwoord gezien. Kunt u uw vraag iets specifieker stellen, "
+                        "bijvoorbeeld door de exacte kolomnaam of eenheid te noemen?"
+                    )},
+                    config,
+                )
+            else:
+                await self.dispatch(
+                    "follow_up_text", {"content": result.follow_up_question}, config
+                )
 
         return {
             "intent_analysis": result,
