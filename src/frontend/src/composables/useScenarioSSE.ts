@@ -12,6 +12,7 @@ export interface ScenarioRunRequest {
   compare?: boolean
   baseline?: Record<string, number>
   shock?: Record<string, number>
+  assumptions?: Record<string, number>
 }
 
 export interface ScenarioSSEHandlers {
