@@ -33,7 +33,11 @@ const {
 const showHistory = ref(false);
 
 const modelOptions = [
-	{ value: "gemma4", text: "gemma4" },
+	{ value: "qwen3-coder-30b-a3b-instruct", text: "Qwen3 Coder 30B — SQL, snel (aanbevolen)" },
+	{ value: "qwen3-235b-a22b-instruct-2507", text: "Qwen3 235B — krachtigst" },
+	{ value: "gpt-oss-120b", text: "GPT-OSS 120B" },
+	{ value: "llama-3.3-70b-instruct", text: "Llama 3.3 70B" },
+	{ value: "gemma4", text: "gemma4 — licht" },
 ];
 
 onMounted(() => {
