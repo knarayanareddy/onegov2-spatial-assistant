@@ -23,6 +23,7 @@ export interface ScenarioSSEHandlers {
   onCard?: (card: any) => void
   onMapData?: (overlays: Overlay[]) => void
   onDelta?: (delta: any) => void
+  onWaterinfo?: (w: any) => void
   onFollowup?: (q: string) => void
   onError?: (msg: string) => void
   onDone?: () => void
@@ -68,6 +69,7 @@ export function useScenarioSSE() {
       case 'scenario_card':             h.onCard?.(data); break
       case 'map_data':                  h.onMapData?.(data.overlays || []); break
       case 'scenario_delta':            h.onDelta?.(data); break
+      case 'waterinfo':                  h.onWaterinfo?.(data); break
       case 'followup_question':         h.onFollowup?.(data.question_nl); break
       case 'error':                     h.onError?.(data.message_nl || 'Onbekende fout'); break
       case 'done':                      h.onDone?.(); break
