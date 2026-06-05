@@ -9,6 +9,7 @@ import { MapboxOverlay } from "@deck.gl/mapbox";
 import { H3HexagonLayer } from "@deck.gl/geo-layers";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
+import { cellToLatLng } from "h3-js";
 
 const VLABEL: Record<string, string> = { GO: "HAALBAAR", CAUTION: "RISICO", STOP: "NIET HAALBAAR" };
 const KNOBS: { key: string; label: string }[] = [
@@ -70,6 +71,7 @@ function barWidth(share: number): string {
 // ---- delta-map overlay (deck.gl H3HexagonLayer over MapLibre) ----
 const mapEl = ref<HTMLDivElement | null>(null);
 let overlay: MapboxOverlay | null = null;
+let map: maplibregl.Map | null = null;
 
 // Diverging colour: red where B is worse (delta > 0), green where B is better
 // (delta < 0), neutral near zero. Alpha scales with magnitude (capped at ±50).
@@ -78,6 +80,26 @@ function deltaColor(d: number): [number, number, number, number] {
   if (x > 0.02) return [220, 53, 69, Math.round(70 + 150 * x)];
   if (x < -0.02) return [40, 167, 69, Math.round(70 + 150 * -x)];
   return [150, 160, 170, 60];
+}
+
+function tooltipHtml(o: any): string {
+  const d = o.delta > 0 ? `+${o.delta}` : `${o.delta}`;
+  return `<div style="font:12px system-ui,sans-serif;line-height:1.4">`
+    + `<b>${o.h3_id}</b><br/>A ${o.score_a} · B ${o.score_b} · Δ <b>${d}</b></div>`;
+}
+
+// Auto-fit the camera to the scored cells (h3-js centroids).
+function fitToCells(cells: any[]) {
+  if (!map || !cells.length) return;
+  let minLat = 90, maxLat = -90, minLng = 180, maxLng = -180;
+  for (const c of cells) {
+    const [lat, lng] = cellToLatLng(c.h3_id);
+    if (lat < minLat) minLat = lat;
+    if (lat > maxLat) maxLat = lat;
+    if (lng < minLng) minLng = lng;
+    if (lng > maxLng) maxLng = lng;
+  }
+  map.fitBounds([[minLng, minLat], [maxLng, maxLat]], { padding: 40, maxZoom: 11, duration: 600 });
 }
 
 function renderOverlay(cells: any[]) {
@@ -94,15 +116,20 @@ function renderOverlay(cells: any[]) {
       lineWidthMinPixels: 0.5,
     })],
   });
+  fitToCells(cells);
 }
 
 onMounted(() => {
   if (!mapEl.value) return;
-  const map = new maplibregl.Map({
+  map = new maplibregl.Map({
     container: mapEl.value, style: "https://demotiles.maplibre.org/style.json",
     center: [4.5, 51.92], zoom: 7.5,
   });
-  overlay = new MapboxOverlay({ interleaved: true, layers: [] });
+  overlay = new MapboxOverlay({
+    interleaved: true,
+    layers: [],
+    getTooltip: ({ object }: any) => (object ? { html: tooltipHtml(object) } : null),
+  });
   map.addControl(overlay as any);
 });
 </script>
@@ -144,7 +171,7 @@ onMounted(() => {
     </div>
 
     <section class="mapsec">
-      <div class="maptitle">Kaart: verschil in DrinkwaterDruk per H3-cel (A → B)</div>
+      <div class="maptitle">Kaart: verschil in DrinkwaterDruk per H3-cel (A → B) — beweeg over een cel voor details</div>
       <div ref="mapEl" class="map" />
       <ul class="legend">
         <li><i style="background:#dc3545" />hoger (slechter) in B</li>
