@@ -14,7 +14,7 @@ import { useMap } from "./useMap";
 
 const messages = ref<ChatMessage[]>([]);
 const isStreaming = ref(false);
-const model = ref("gemma4");
+const model = ref("qwen3-coder-30b-a3b-instruct");
 const sessionId = ref<string | null>(null);
 
 export function useChat() {
