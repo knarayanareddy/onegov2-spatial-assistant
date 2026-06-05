@@ -10,5 +10,5 @@ class ChatMessage(BaseModel):
 
 class ChatRequest(BaseModel):
     messages: list[ChatMessage]
-    model: str = "gemma4"
+    model: str = "qwen3-coder-30b-a3b-instruct"
     session_id: uuid.UUID | None = None
