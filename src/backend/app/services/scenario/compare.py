@@ -189,6 +189,31 @@ def _cell_context(data_dir: str, h3_ids: list[str]) -> dict[str, dict]:
                 if h in ctx:
                     ctx[h]["in_zes_uur_zone"] = True
 
+        # gemeente + regio (buurtgrenzen + economische_regios)
+        burt_glob = glob.glob(os.path.join(data_dir, "gebiedsviewer", "buurtgrenzen_new", "*.parquet"))
+        regio_glob = glob.glob(os.path.join(data_dir, "gebiedsviewer", "economische_regios_new", "*.parquet"))
+        if burt_glob:
+            rows = con.execute(f"""
+                SELECT {_norm_h3('h3_id')} AS h, gemeentenaam, buurtnaam, PROVINCIE
+                FROM read_parquet('{burt_glob[0]}')
+                WHERE {_norm_h3('h3_id')} IN ({vals})
+                QUALIFY ROW_NUMBER() OVER (PARTITION BY {_norm_h3('h3_id')} ORDER BY dekkingspercentage_fraction DESC) = 1
+            """).fetchall()
+            for h, gemeente, buurt, provincie in rows:
+                if h in ctx:
+                    ctx[h]["gemeentenaam"] = gemeente or "—"
+                    ctx[h]["buurtnaam"]    = buurt or "—"
+                    ctx[h]["provincie"]    = provincie or "Zuid-Holland"
+        if regio_glob:
+            rows = con.execute(f"""
+                SELECT {_norm_h3('h3_id')} AS h, Regio
+                FROM read_parquet('{regio_glob[0]}')
+                WHERE {_norm_h3('h3_id')} IN ({vals})
+            """).fetchall()
+            for h, regio in rows:
+                if h in ctx:
+                    ctx[h]["regio"] = regio or "—"
+
         return ctx
     except Exception:
         return {}
@@ -295,6 +320,10 @@ def compare_scenarios(spec_a: dict, spec_b: dict, data_dir: str, store: Any | No
             "verzilting":       ctx.get("verzilting", False),
             "overstromingsrisico": ctx.get("overstromingsrisico", "—"),
             "in_zes_uur_zone":  ctx.get("in_zes_uur_zone", False),
+            "gemeentenaam":     ctx.get("gemeentenaam", "—"),
+            "buurtnaam":        ctx.get("buurtnaam", "—"),
+            "provincie":        ctx.get("provincie", "Zuid-Holland"),
+            "regio":            ctx.get("regio", "—"),
         })
 
     # Full per-cell overlay for the map (every cell, coloured by A->B delta).
