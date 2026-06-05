@@ -8,6 +8,7 @@ import MapPanel from "./components/map/MapPanel.vue";
 import ScenarioPanel from "./components/scenario/ScenarioPanel.vue";
 import ScenarioLibrary from "./components/scenario/ScenarioLibrary.vue";
 import CumulativePanel from "./components/scenario/CumulativePanel.vue";
+import ScenarioComparePanel from "./components/scenario/ScenarioComparePanel.vue";
 import ChatbotPanel from "./components/chatbot/ChatbotPanel.vue";
 import KennisbasisPanel from "./components/kennisbasis/KennisbasisPanel.vue";
 import { useDataDictionary } from "./composables/useDataDictionary";
@@ -18,12 +19,13 @@ const { init: initDB } = useDuckDB();
 const { fetchDictionary } = useDataDictionary();
 const { meerInfoOpen } = useMeerInfo();
 
-type View = "assistent" | "chatbot" | "scenario" | "stapeling" | "kennisbasis" | "bibliotheek";
+type View = "assistent" | "chatbot" | "scenario" | "vergelijk" | "stapeling" | "kennisbasis" | "bibliotheek";
 const view = ref<View>("assistent");
 const tabs: { id: View; label: string }[] = [
   { id: "assistent", label: "🗺️ Assistent" },
   { id: "chatbot", label: "💧 Kennis-chat" },
   { id: "scenario", label: "🔮 Scenario-engine" },
+  { id: "vergelijk", label: "⚖️ Vergelijk" },
   { id: "stapeling", label: "➕ Stapeling" },
   { id: "kennisbasis", label: "📚 Kennisbasis" },
   { id: "bibliotheek", label: "🗂️ Scenario's" },
@@ -49,6 +51,7 @@ onBeforeMount(() => {
 
     <ChatbotPanel v-if="view === 'chatbot'" />
     <ScenarioPanel v-else-if="view === 'scenario'" />
+    <ScenarioComparePanel v-else-if="view === 'vergelijk'" />
     <CumulativePanel v-else-if="view === 'stapeling'" />
     <KennisbasisPanel v-else-if="view === 'kennisbasis'" />
     <ScenarioLibrary v-else-if="view === 'bibliotheek'" />
