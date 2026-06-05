@@ -84,8 +84,15 @@ function tooltipHtml(o: any, labelA: string, labelB: string): string {
   const verzilt  = o.verzilting ? "Ja (>200mg/l)" : "Nee";
   const zes      = o.in_zes_uur_zone ? "Binnen zone" : "Buiten zone";
   const overs    = o.overstromingsrisico ?? "—";
-  return `<div style="font:12.5px/1.5 system-ui,sans-serif;min-width:260px">
-    <div style="background:#0a4d68;color:#fff;padding:7px 11px;border-radius:6px 6px 0 0;font-weight:700">${o.h3_id}</div>
+  const locTitle = o.gemeentenaam && o.gemeentenaam !== "—"
+    ? `${o.gemeentenaam}${o.buurtnaam && o.buurtnaam !== "—" ? " · " + o.buurtnaam : ""}`
+    : o.h3_id;
+  const locSub = o.regio && o.regio !== "—" ? `${o.provincie ?? "Zuid-Holland"} · ${o.regio}` : (o.provincie ?? "Zuid-Holland");
+  return `<div style="font:12.5px/1.5 system-ui,sans-serif;min-width:280px">
+    <div style="background:#0a4d68;color:#fff;padding:8px 12px;border-radius:6px 6px 0 0">
+      <div style="font-weight:700;font-size:13px">${locTitle}</div>
+      <div style="font-size:11px;opacity:.8;margin-top:1px">${locSub}</div>
+    </div>
     <div style="padding:10px 12px;display:flex;flex-direction:column;gap:5px">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px">
         <div style="background:#f4f7f9;border-radius:6px;padding:7px 10px;text-align:center">
@@ -144,7 +151,7 @@ onMounted(() => {
   if (!mapEl.value) return;
   map = new maplibregl.Map({
     container: mapEl.value,
-    style: "https://demotiles.maplibre.org/style.json",
+    style: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
     center: [4.5, 51.92], zoom: 8,
   });
   overlay = new MapboxOverlay({
